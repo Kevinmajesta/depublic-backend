@@ -11,6 +11,7 @@ type Config struct {
 	Env      string         `env:"ENV" envDefault:"dev"`
 	Port     string         `env:"PORT" envDefault:"8080"`
 	Postgres PostgresConfig `envPrefix:"POSTGRES_"`
+	Redis    RedisConfig    `envPrefix:"REDIS_"`
 }
 
 type PostgresConfig struct {
@@ -19,6 +20,11 @@ type PostgresConfig struct {
 	User     string `env:"USER" envDefault:"postgres"`
 	Password string `env:"PASSWORD" envDefault:"postgres"`
 	Database string `env:"DATABASE" envDefault:"postgres"`
+}
+
+type RedisConfig struct {
+	Host string `env:"HOST" envDefault:"localhost"`
+	Port string `env:"PORT" envDefault:"6379"`
 }
 
 func NewConfig(envPath string) (*Config, error) {
