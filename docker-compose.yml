@@ -21,6 +21,6 @@ services:
     environment:
       - POSTGRES_USER=depublic
       - POSTGRES_PASSWORD=depublic
-      - POSTGRES_DB=postgres
+      - POSTGRES_DB=depublic
     ports:
       - "5432:5432"
