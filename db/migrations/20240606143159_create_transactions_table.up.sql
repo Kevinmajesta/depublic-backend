@@ -2,8 +2,8 @@ BEGIN;
 
 CREATE TABLE IF NOT EXISTS transactions (
     transactions_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    cart_id UUID NOT NULL,
-    user_id UUID NOT NULL,
+    cart_id VARCHAR(255) NOT NULL,
+    user_id VARCHAR(255) NOT NULL,
     fullname_user VARCHAR(255) NOT NULL,
     trx_date DATE NOT NULL,
     payment VARCHAR(255) NOT NULL,
