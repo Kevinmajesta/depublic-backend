@@ -5,12 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="25585b51-f5c4-4217-8f5b-5210f18d20f6" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/db/migrations/20240606140128_create_wishlists_table.up.sql" beforeDir="false" afterPath="$PROJECT_DIR$/db/migrations/20240606140128_create_wishlists_table.up.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/migrations/20240606140757_create_carts_table.up.sql" beforeDir="false" afterPath="$PROJECT_DIR$/db/migrations/20240606140757_create_carts_table.up.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/migrations/20240606143159_create_transactions_table.up.sql" beforeDir="false" afterPath="$PROJECT_DIR$/db/migrations/20240606143159_create_transactions_table.up.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/migrations/20240606143730_create_transaction_details_table.up.sql" beforeDir="false" afterPath="$PROJECT_DIR$/db/migrations/20240606143730_create_transaction_details_table.up.sql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/migrations/20240606144146_create_events_table.up.sql" beforeDir="false" afterPath="$PROJECT_DIR$/db/migrations/20240606144146_create_events_table.up.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/migrations/20240606144317_create_tickets_table.up.sql" beforeDir="false" afterPath="$PROJECT_DIR$/db/migrations/20240606144317_create_tickets_table.up.sql" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

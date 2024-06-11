@@ -3,7 +3,7 @@ BEGIN;
 CREATE TABLE IF NOT EXISTS events(
     event_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     category_id UUID NOT NULL,
-    title_event UUID NOT NULL,
+    title_event VARCHAR(255) NOT NULL,
     date_event DATE NOT NULL,
     price_event int NOT NULL,
     city_event VARCHAR(255) NOT NULL,
