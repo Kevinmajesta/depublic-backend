@@ -1,31 +1,31 @@
 package binder
 
-type UserLoginRequest struct {
+type AdminLoginRequest struct {
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required"`
 }
 
-type UserCreateRequest struct {
+type AdminCreateRequest struct {
+	Fullname     string `json:"fullname" validate:"required"`
 	Email        string `json:"email" validate:"required,email"`
 	Password     string `json:"password" validate:"required"`
-	Fullname     string `json:"fullname" validate:"required"`
-	Phone        string `json:"phone" validate:"required"`
 	Role         string `json:"role" `
+	Phone        string `json:"phone" validate:"required"`
 	Status       bool   `json:"status" `
 	Verification bool   `json:"verification" `
 }
 
-type UserUpdateRequest struct {
-	User_ID      string `param:"user_id" validate:"required"`
+type AdminUpdateRequest struct {
+	Admin_ID     string `param:"user_id" validate:"required"`
+	Fullname     string `json:"fullname" validate:"required"`
 	Email        string `json:"email" validate:"required,email"`
 	Password     string `json:"password" validate:"required"`
-	Fullname     string `json:"fullname" validate:"required"`
-	Phone        string `json:"phone" validate:"required"`
 	Role         string `json:"role" `
+	Phone        string `json:"phone" validate:"required"`
 	Status       bool   `json:"status" `
 	Verification bool   `json:"verification" `
 }
 
-type UserDeleteRequest struct {
-	User_ID string `param:"user_id" validate:"required"`
+type AdminDeleteRequest struct {
+	Admin_ID string `param:"user_id" validate:"required"`
 }

@@ -12,7 +12,10 @@ type Config struct {
 	Port     string         `env:"PORT" envDefault:"8080"`
 	Postgres PostgresConfig `envPrefix:"POSTGRES_"`
 	Redis    RedisConfig    `envPrefix:"REDIS_"`
+	JWT      JwtConfig      `envPrefix:"JWT_"`
+	Encrypt  EncryptConfig  `envPrefix:"ENCRYPT_"`
 }
+
 
 type PostgresConfig struct {
 	Host     string `env:"HOST" envDefault:"localhost"`
@@ -22,9 +25,19 @@ type PostgresConfig struct {
 	Database string `env:"DATABASE" envDefault:"postgres"`
 }
 
+type JwtConfig struct {
+	SecretKey string `env:"SECRET_KEY"`
+}
+
 type RedisConfig struct {
-	Host string `env:"HOST" envDefault:"localhost"`
-	Port string `env:"PORT" envDefault:"6379"`
+	Host     string `env:"HOST" envDefault:"localhost"`
+	Port     string `env:"PORT" envDefault:"6379"`
+	Password string `env:"PASSWORD" envDefault:""`
+}
+
+type EncryptConfig struct {
+	SecretKey string `env:"SECRET_KEY"`
+	IV        string `env:"IV"`
 }
 
 func NewConfig(envPath string) (*Config, error) {

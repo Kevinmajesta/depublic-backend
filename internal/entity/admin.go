@@ -5,52 +5,53 @@ import (
 	"gorm.io/gorm"
 )
 
-type User struct {
+type Admin struct {
 	User_ID  uuid.UUID `json:"user_id"`
 	Fullname string    `json:"fullname"`
 	Email    string    `json:"email"`
 	Password string    `json:"password"`
-	Phone    string    `json:"phone"`
 	Role     string    `json:"role"`
-	Status   bool      `json:"status"`
+	Phone    string    `json:"phone"`
 	Auditable
 	Verification bool `json:"verification"`
 }
 
-func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
+func (u *Admin) BeforeCreate(tx *gorm.DB) (err error) {
 	if u.Role == "" {
-		u.Role = "user"
+		u.Role = "admin"
 	}
-	if !u.Status {
-		u.Status = true
+	if u.Fullname == "" {
+		u.Fullname = "admin"
 	}
 	return
 }
 
-func NewUser(fullname, email, password, phone, role string, status, verification bool) *User {
-	return &User{
+func NewAdmin(fullname, email, password, role, phone string, verification bool) *Admin {
+	return &Admin{
 		User_ID:      uuid.New(),
 		Fullname:     fullname,
 		Email:        email,
 		Password:     password,
-		Phone:        phone,
 		Role:         role,
-		Status:       status,
-		Verification: verification,
+		Phone:        phone,
 		Auditable:    NewAuditable(),
+		Verification: false,
 	}
 }
 
-func UpdateUser(user_id uuid.UUID, fullname, email, password, phone, role string, status, verification bool) *User {
-	return &User{
-		User_ID:      user_id,
+func UpdateAdmin(admin_id uuid.UUID, fullname, email, password, role, phone string, verification bool) *Admin {
+	return &Admin{
+		User_ID:      admin_id,
 		Fullname:     fullname,
 		Email:        email,
 		Password:     password,
-		Phone:        phone,
 		Role:         role,
-		Status:       status,
-		Verification: verification,
+		Phone:        phone,
 		Auditable:    UpdateAuditable(),
+		Verification: false,
 	}
+}
+
+func (Admin) TableName() string {
+	return "users"
 }

@@ -11,6 +11,9 @@ import (
 
 	"github.com/Kevinmajesta/depublic-backend/pkg/response"
 	"github.com/Kevinmajesta/depublic-backend/pkg/route"
+	"github.com/Kevinmajesta/depublic-backend/pkg/token"
+	"github.com/golang-jwt/jwt/v5"
+	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 )
 
@@ -18,7 +21,7 @@ type Server struct {
 	*echo.Echo
 }
 
-func NewServer(serverName string, publicRoutes, privateRoutes []*route.Route) *Server {
+func NewServer(serverName string, publicRoutes, privateRoutes []*route.Route, secretKey string) *Server {
 	e := echo.New()
 
 	e.GET("/", func(c echo.Context) error {
@@ -27,18 +30,14 @@ func NewServer(serverName string, publicRoutes, privateRoutes []*route.Route) *S
 
 	v1 := e.Group(fmt.Sprintf("/%s/api/v1", serverName))
 
-	if len(publicRoutes) > 0 {
-		for _, v := range publicRoutes {
-			v1.Add(v.Method, v.Path, v.Handler)
-		}
+	for _, public := range publicRoutes {
+		v1.Add(public.Method, public.Path, public.Handler)
 	}
 
-	if len(privateRoutes) > 0 {
-		for _, v := range privateRoutes {
-			v1.Add(v.Method, v.Path, v.Handler)
-		}
+	for _, private := range privateRoutes {
+		// v1.Add(private.Method, private.Path, private.Handler, JWTProtected(cfg.JWT.SecretKey), SessionProtected())
+		v1.Add(private.Method, private.Path, private.Handler, JWTProtection(secretKey), JWTCheckRoles(private.Roles...))
 	}
-
 	return &Server{e}
 }
 
@@ -66,9 +65,45 @@ func gracefulShutdown(srv *Server) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	go func() {
-		if err := srv.Shutdown(ctx); err != nil {
-			srv.Logger.Fatal("Server Shutdown:", err)
+	if err := srv.Shutdown(ctx); err != nil {
+		srv.Logger.Fatal("Server Shutdown:", err)
+	}
+}
+
+func JWTProtection(secretKey string) echo.MiddlewareFunc {
+	return echojwt.WithConfig(echojwt.Config{
+		NewClaimsFunc: func(c echo.Context) jwt.Claims {
+			return new(token.JwtCustomClaims)
+		},
+		SigningKey: []byte(secretKey),
+	})
+}
+
+func JWTCheckRoles(roles ...string) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			user, ok := c.Get("user").(*jwt.Token)
+			if !ok {
+				return c.JSON(http.StatusUnauthorized, map[string]string{"error": "silahkan login terlebih dahulu"})
+			}
+
+			claims := user.Claims.(*token.JwtCustomClaims)
+
+			// Check if the user has the required role
+			if !contains(roles, claims.Role) {
+				return c.JSON(http.StatusForbidden, map[string]string{"error": "anda tidak diperbolehkan untuk mengakses resource ini"})
+			}
+
+			return next(c)
 		}
-	}()
+	}
+}
+
+func contains(slice []string, s string) bool {
+	for _, value := range slice {
+		if value == s {
+			return true
+		}
+	}
+	return false
 }

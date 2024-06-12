@@ -2,21 +2,31 @@ package main
 
 import (
 	"github.com/Kevinmajesta/depublic-backend/configs"
-	"github.com/Kevinmajesta/depublic-backend/internal/http/router"
+	"github.com/Kevinmajesta/depublic-backend/internal/builder"
+	"github.com/Kevinmajesta/depublic-backend/pkg/cache"
+	"github.com/Kevinmajesta/depublic-backend/pkg/encrypt"
+	"github.com/Kevinmajesta/depublic-backend/pkg/postgres"
 	"github.com/Kevinmajesta/depublic-backend/pkg/server"
+	"github.com/Kevinmajesta/depublic-backend/pkg/token"
 )
 
 func main() {
-	// Memuat konfigurasi dari file .env
-	_, err := configs.NewConfig(".env")
+	cfg, err := configs.NewConfig(".env")
 	checkError(err)
 
-	// Mengambil rute publik dan privat
-	publicRoutes := router.PublicRoutes()
-	privateRoutes := router.PrivateRoutes()
+	db, err := postgres.InitPostgres(&cfg.Postgres)
+	checkError(err)
 
-	// Membuat server baru dengan rute-rute yang telah diambil
-	srv := server.NewServer("app", publicRoutes, privateRoutes)
+	redisDB := cache.InitCache(&cfg.Redis)
+
+	encryptTool := encrypt.NewEncryptTool(cfg.Encrypt.SecretKey, cfg.Encrypt.IV)
+
+	tokenUseCase := token.NewTokenUseCase(cfg.JWT.SecretKey)
+
+	PublicRoutes := builder.BuildPublicRoutes(db, tokenUseCase, encryptTool)
+	PrivateRoutes := builder.BuildPrivateRoutes(db, redisDB, encryptTool)
+
+	srv := server.NewServer("app", PublicRoutes, PrivateRoutes, cfg.JWT.SecretKey)
 	srv.Run()
 }
 
