@@ -11,7 +11,10 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     deleted_at TIMESTAMPTZ,
-    verification BOOLEAN DEFAULT false
+    reset_code VARCHAR(255),
+    reset_code_expires_at TIMESTAMPTZ,
+    verification BOOLEAN DEFAULT false,
+    verification_code VARCHAR(255)
 );
 
 COMMIT;
