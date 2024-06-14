@@ -2,11 +2,13 @@ package service
 
 import (
 	"errors"
-	"log"
+	"fmt"
+	"math/rand"
 	"time"
 
 	"github.com/Kevinmajesta/depublic-backend/internal/entity"
 	"github.com/Kevinmajesta/depublic-backend/internal/repository"
+	"github.com/Kevinmajesta/depublic-backend/pkg/email"
 	"github.com/Kevinmajesta/depublic-backend/pkg/encrypt"
 	"github.com/Kevinmajesta/depublic-backend/pkg/token"
 	"github.com/golang-jwt/jwt/v5"
@@ -19,40 +21,42 @@ type UserService interface {
 	CreateUser(user *entity.User) (*entity.User, error)
 	UpdateUser(user *entity.User) (*entity.User, error)
 	DeleteUser(user_id uuid.UUID) (bool, error)
-	ResetPassword(userID uuid.UUID, newPassword string) error
+	RequestPasswordReset(email string) error
+	ResetPassword(resetCode string, newPassword string) error
 	EmailExists(email string) bool
 	GetUserProfileByID(userID string) (*entity.User, error)
+	VerifUser(resetCode string) error
 }
 
 type userService struct {
 	userRepository repository.UserRepository
 	tokenUseCase   token.TokenUseCase
 	encryptTool    encrypt.EncryptTool
+	emailSender    *email.EmailSender
 }
 
-func NewUserService(userRepository repository.UserRepository, tokenUseCase token.TokenUseCase, encryptTool encrypt.EncryptTool) *userService {
+func NewUserService(userRepository repository.UserRepository, tokenUseCase token.TokenUseCase,
+	encryptTool encrypt.EncryptTool, emailSender *email.EmailSender) *userService {
 	return &userService{
 		userRepository: userRepository,
 		tokenUseCase:   tokenUseCase,
 		encryptTool:    encryptTool,
+		emailSender:    emailSender,
 	}
 }
 
 func (s *userService) LoginUser(email string, password string) (string, error) {
 	user, err := s.userRepository.FindUserByEmail(email)
 	if err != nil {
-		return "", errors.New("email/password yang anda masukkan salah")
+		return "", errors.New("wrong input email/password")
 	}
 	if user.Role != "user" {
-		return "", errors.New("anda bukan user")
+		return "", errors.New("you dont have access")
 	}
 
-	log.Printf("Hashed password from database: %s", user.Password)
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
-		// Debugging: log kesalahan yang dikembalikan oleh bcrypt
-		log.Printf("Password comparison error: %v", err)
-		return "", errors.New("email/password yang anda masukkan salah")
+		return "", errors.New("wrong input email/password")
 	}
 
 	// Lanjutkan dengan pembuatan token dan logika lainnya
@@ -72,40 +76,74 @@ func (s *userService) LoginUser(email string, password string) (string, error) {
 
 	token, err := s.tokenUseCase.GenerateAccessToken(claims)
 	if err != nil {
-		return "", errors.New("ada kesalahan dari sistem")
+		return "", errors.New("there is an error in the system")
 	}
 	return token, nil
 }
 
 func (s *userService) CreateUser(user *entity.User) (*entity.User, error) {
+	if user.Email == "" {
+		return nil, errors.New("email cannot be empty")
+	}
+	if user.Password == "" {
+		return nil, errors.New("password cannot be empty")
+	}
+	if user.Fullname == "" {
+		return nil, errors.New("fullname cannot be empty")
+	}
+	if user.Phone == "" {
+		return nil, errors.New("phone cannot be empty")
+	}
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err
 	}
 	user.Password = string(hashedPassword)
-
-	user.Phone, _ = s.encryptTool.Encrypt(user.Phone)
-
 	newUser, err := s.userRepository.CreateUser(user)
 	if err != nil {
 		return nil, err
 	}
 
-	newUser.Phone, _ = s.encryptTool.Decrypt(newUser.Phone)
+	emailAddr := newUser.Email
+	err = s.emailSender.SendWelcomeEmail(emailAddr, "")
+
+	if err != nil {
+		return nil, err
+	}
+
+	resetCode := generateResetCode()
+	err = s.emailSender.SendVerificationEmail(newUser.Email, resetCode)
+	if err != nil {
+		return nil, err
+	}
+	err = s.userRepository.SaveVerifCode(user.User_ID, resetCode)
+	if err != nil {
+		return nil, err
+	}
 
 	return newUser, nil
 }
 
 func (s *userService) UpdateUser(user *entity.User) (*entity.User, error) {
+	if user.Email == "" {
+		return nil, errors.New("email cannot be empty")
+	}
+	if user.Password == "" {
+		return nil, errors.New("password cannot be empty")
+	}
+	if user.Fullname == "" {
+		return nil, errors.New("fullname cannot be empty")
+	}
+	if user.Phone == "" {
+		return nil, errors.New("phone cannot be empty")
+	}
 	if user.Password != "" {
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 		if err != nil {
 			return nil, err
 		}
 		user.Password = string(hashedPassword)
-	}
-	if user.Phone != "" {
-		user.Phone, _ = s.encryptTool.Encrypt(user.Phone)
 	}
 	return s.userRepository.UpdateUser(user)
 }
@@ -119,20 +157,41 @@ func (s *userService) DeleteUser(user_Id uuid.UUID) (bool, error) {
 	return s.userRepository.DeleteUser(user)
 }
 
-func (s *userService) ResetPassword(userID uuid.UUID, newPassword string) error {
-	// Cari pengguna berdasarkan ID pengguna
-	user, err := s.userRepository.FindUserByID(userID)
+func (s *userService) RequestPasswordReset(email string) error {
+	user, err := s.userRepository.FindUserByEmail(email)
+	if err != nil {
+		return errors.New("user not found")
+	}
+
+	resetCode := generateResetCode()
+	expiresAt := time.Now().Add(1 * time.Hour)
+
+	err = s.userRepository.SaveResetCode(user.User_ID, resetCode, expiresAt)
+	if err != nil {
+		return errors.New("failed to save reset code")
+	}
+
+	return s.emailSender.SendResetPasswordEmail(user.Email, resetCode)
+}
+
+func (s *userService) ResetPassword(resetCode string, newPassword string) error {
+	user, err := s.userRepository.FindUserByResetCode(resetCode)
 	if err != nil {
 		return err
 	}
 	if user == nil {
-		return errors.New("pengguna tidak ditemukan")
+		return errors.New("invalid reset code")
+	}
+	if newPassword == "" {
+		return errors.New("password cannot be empty")
 	}
 
-	// Setel kata sandi baru
-	user.Password = newPassword
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	user.Password = string(hashedPassword)
 
-	// Simpan perubahan ke database
 	_, err = s.userRepository.UpdateUser(user)
 	if err != nil {
 		return err
@@ -162,4 +221,30 @@ func (s *userService) GetUserProfileByID(userID string) (*entity.User, error) {
 		return nil, err
 	}
 	return user, nil
+}
+
+func (s *userService) VerifUser(verifCode string) error {
+	user, err := s.userRepository.FindUserByVerifCode(verifCode)
+	if err != nil {
+		return err
+	}
+	if user == nil {
+		return errors.New("invalid verification code")
+	}
+
+	// Update verification status
+	user.Verification = true
+
+	_, err = s.userRepository.UpdateUser(user)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func generateResetCode() string {
+	rand.Seed(time.Now().UnixNano())
+	code := fmt.Sprintf("%06d", rand.Intn(1000000))
+	return code
 }

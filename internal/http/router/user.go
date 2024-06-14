@@ -41,6 +41,21 @@ func PublicRoutes(userHandler handler.UserHandler,
 			Path:    "/admins",
 			Handler: adminHandler.CreateAdmin,
 		},
+		{
+			Method:  http.MethodPost,
+			Path:    "/password-reset-request",
+			Handler: userHandler.RequestPasswordReset,
+		},
+		{
+			Method:  http.MethodPost,
+			Path:    "/verification-account",
+			Handler: userHandler.VerifUser,
+		},
+		{
+			Method:  http.MethodPost,
+			Path:    "/password-reset",
+			Handler: userHandler.ResetPassword,
+		},
 	}
 }
 

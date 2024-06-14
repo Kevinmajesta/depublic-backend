@@ -19,6 +19,10 @@ type UserRepository interface {
 	UpdateUser(user *entity.User) (*entity.User, error)
 	DeleteUser(user *entity.User) (bool, error)
 	GetUserProfileByID(id uuid.UUID) (*entity.User, error)
+	SaveResetCode(userID uuid.UUID, resetCode string, expiresAt time.Time) error
+	SaveVerifCode(userID uuid.UUID, resetCode string) error
+	FindUserByResetCode(resetCode string) (*entity.User, error)
+	FindUserByVerifCode(verifCode string) (*entity.User, error)
 }
 
 type userRepository struct {
@@ -74,6 +78,9 @@ func (r *userRepository) UpdateUser(user *entity.User) (*entity.User, error) {
 	if user.Role != "" {
 		fields["role"] = user.Role
 	}
+	if user.Verification {
+		fields["verification"] = user.Verification
+	}
 	if user.Phone != "" {
 		fields["phone"] = user.Phone
 	}
@@ -128,5 +135,36 @@ func (r *userRepository) GetUserProfileByID(id uuid.UUID) (*entity.User, error) 
 		return nil, err
 	}
 
+	return &user, nil
+}
+
+func (r *userRepository) SaveResetCode(user_ID uuid.UUID, resetCode string, expiresAt time.Time) error {
+	return r.db.Model(&entity.User{}).Where("user_id = ?", user_ID).Updates(map[string]interface{}{
+		"reset_code":            resetCode,
+		"reset_code_expires_at": expiresAt,
+	}).Error
+}
+
+func (r *userRepository) SaveVerifCode(user_ID uuid.UUID, resetCode string) error {
+	return r.db.Model(&entity.User{}).Where("user_id = ?", user_ID).Updates(map[string]interface{}{
+		"verification_code": resetCode,
+	}).Error
+}
+
+func (r *userRepository) FindUserByResetCode(resetCode string) (*entity.User, error) {
+	var user entity.User
+	err := r.db.Where("reset_code = ?", resetCode).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (r *userRepository) FindUserByVerifCode(verifCode string) (*entity.User, error) {
+	var user entity.User
+	err := r.db.Where("verification_code = ?", verifCode).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
 	return &user, nil
 }

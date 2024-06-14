@@ -84,14 +84,14 @@ func JWTCheckRoles(roles ...string) echo.MiddlewareFunc {
 		return func(c echo.Context) error {
 			user, ok := c.Get("user").(*jwt.Token)
 			if !ok {
-				return c.JSON(http.StatusUnauthorized, map[string]string{"error": "silahkan login terlebih dahulu"})
+				return c.JSON(http.StatusUnauthorized, response.ErrorResponse(http.StatusBadRequest, "you must login first"))
 			}
 
 			claims := user.Claims.(*token.JwtCustomClaims)
 
 			// Check if the user has the required role
 			if !contains(roles, claims.Role) {
-				return c.JSON(http.StatusForbidden, map[string]string{"error": "anda tidak diperbolehkan untuk mengakses resource ini"})
+				return c.JSON(http.StatusForbidden, response.ErrorResponse(http.StatusBadRequest, "you don't have access"))
 			}
 
 			return next(c)

@@ -23,7 +23,7 @@ func (h *AdminHandler) LoginAdmin(c echo.Context) error {
 	input := binder.AdminLoginRequest{}
 
 	if err := c.Bind(&input); err != nil {
-		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "ada kesalahan input"))
+		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "there is an input error"))
 	}
 
 	admin, err := h.adminService.LoginAdmin(input.Email, input.Password)
@@ -40,17 +40,18 @@ func (h *AdminHandler) FindAllUser(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
 	}
 
-	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "sukses menampilkan data user", users))
+	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "successfully displays user data", users))
 }
 
 func (h *AdminHandler) CreateAdmin(c echo.Context) error {
 	input := binder.AdminCreateRequest{}
 
 	if err := c.Bind(&input); err != nil {
-		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "ada kesalahan input"))
+		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "there is an input error"))
 	}
+
 	if h.adminService.EmailExists(input.Email) {
-		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "email sudah digunakan"))
+		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "email is already in use"))
 	}
 
 	newAdmin := entity.NewAdmin(input.Fullname, input.Email, input.Password, input.Role, input.Phone, input.Verification)
@@ -59,14 +60,14 @@ func (h *AdminHandler) CreateAdmin(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
 	}
 
-	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "sukses membuat admin baru", admin))
+	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Successfully created a new admin, the email has been sent", admin))
 }
 
 func (h *AdminHandler) UpdateAdmin(c echo.Context) error {
 	var input binder.AdminUpdateRequest
 
 	if err := c.Bind(&input); err != nil {
-		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "ada kesalahan input"))
+		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "there is an input error"))
 	}
 
 	id := uuid.MustParse(input.Admin_ID)
@@ -77,14 +78,14 @@ func (h *AdminHandler) UpdateAdmin(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
 	}
-	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "sukses update admin", updatedAdmin))
+	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "success update admin", updatedAdmin))
 }
 
 func (h *AdminHandler) DeleteAdmin(c echo.Context) error {
 	var input binder.AdminDeleteRequest
 
 	if err := c.Bind(&input); err != nil {
-		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "ada kesalahan input"))
+		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "there is an input error"))
 	}
 
 	id := uuid.MustParse(input.Admin_ID)
@@ -94,5 +95,5 @@ func (h *AdminHandler) DeleteAdmin(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
 	}
 
-	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "sukses delete admin", isDeleted))
+	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "success delete admin", isDeleted))
 }

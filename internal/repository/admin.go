@@ -18,6 +18,7 @@ type AdminRepository interface {
 	CreateAdmin(admin *entity.Admin) (*entity.Admin, error)
 	UpdateAdmin(admin *entity.Admin) (*entity.Admin, error)
 	DeleteAdmin(admin *entity.Admin) (bool, error)
+	SaveVerifCode(userID uuid.UUID, resetCode string) error
 }
 
 type adminRepository struct {
@@ -109,4 +110,10 @@ func (r *adminRepository) DeleteAdmin(admin *entity.Admin) (bool, error) {
 		return false, err
 	}
 	return true, nil
+}
+
+func (r *adminRepository) SaveVerifCode(user_ID uuid.UUID, resetCode string) error {
+	return r.db.Model(&entity.User{}).Where("user_id = ?", user_ID).Updates(map[string]interface{}{
+		"verification_code": resetCode,
+	}).Error
 }

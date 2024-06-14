@@ -29,3 +29,16 @@ type UserUpdateRequest struct {
 type UserDeleteRequest struct {
 	User_ID string `param:"user_id" validate:"required"`
 }
+
+type PasswordResetRequest struct {
+	Email string `json:"email"`
+}
+
+type ResetPassword struct {
+	ResetCode string `json:"reset_code"`
+	Password  string `json:"password"`
+}
+
+type VerifUser struct {
+	VerifCode string `json:"verification_code"`
+}

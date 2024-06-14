@@ -1,12 +1,12 @@
 package service
 
 import (
-	"errors"
-	"log" // Import log package
+	"errors" // Import log package
 	"time"
 
 	"github.com/Kevinmajesta/depublic-backend/internal/entity"
 	"github.com/Kevinmajesta/depublic-backend/internal/repository"
+	"github.com/Kevinmajesta/depublic-backend/pkg/email"
 	"github.com/Kevinmajesta/depublic-backend/pkg/encrypt"
 	"github.com/Kevinmajesta/depublic-backend/pkg/token"
 	"github.com/golang-jwt/jwt/v5"
@@ -27,34 +27,30 @@ type adminService struct {
 	adminRepository repository.AdminRepository
 	tokenUseCase    token.TokenUseCase
 	encryptTool     encrypt.EncryptTool
+	emailSender     *email.EmailSender
 }
 
-func NewAdminService(adminRepository repository.AdminRepository, tokenUseCase token.TokenUseCase, encryptTool encrypt.EncryptTool) *adminService {
+func NewAdminService(adminRepository repository.AdminRepository, tokenUseCase token.TokenUseCase,
+	encryptTool encrypt.EncryptTool, emailSender *email.EmailSender) *adminService {
 	return &adminService{
 		adminRepository: adminRepository,
 		tokenUseCase:    tokenUseCase,
 		encryptTool:     encryptTool,
+		emailSender:     emailSender,
 	}
 }
 
 func (s *adminService) LoginAdmin(email string, password string) (string, error) {
 	admin, err := s.adminRepository.FindAdminByEmail(email)
 	if err != nil {
-		log.Println("Error finding admin by email:", err)
-		return "", errors.New("email/password yang anda masukkan salah")
+		return "", errors.New("wrong input email/password")
 	}
 	if admin.Role != "admin" {
-		return "", errors.New("anda bukan admin")
+		return "", errors.New("you dont have access")
 	}
-
-	// Debugging: log hash kata sandi dari database
-	log.Printf("Hashed password from database: %s", admin.Password)
-
 	err = bcrypt.CompareHashAndPassword([]byte(admin.Password), []byte(password))
 	if err != nil {
-		// Debugging: log kesalahan yang dikembalikan oleh bcrypt
-		log.Printf("Password comparison error: %v", err)
-		return "", errors.New("email/password yang anda masukkan salah")
+		return "", errors.New("wrong input email/password")
 	}
 
 	// Lanjutkan dengan pembuatan token dan logika lainnya
@@ -72,7 +68,7 @@ func (s *adminService) LoginAdmin(email string, password string) (string, error)
 
 	token, err := s.tokenUseCase.GenerateAccessToken(claims)
 	if err != nil {
-		return "", errors.New("ada kesalahan dari sistem")
+		return "", errors.New("there is an error in the system")
 	}
 	return token, nil
 }
@@ -93,6 +89,13 @@ func (s *adminService) FindAllUser() ([]entity.User, error) {
 }
 
 func (s *adminService) CreateAdmin(admin *entity.Admin) (*entity.Admin, error) {
+	if admin.Email == "" {
+		return nil, errors.New("email cannot be empty")
+	}
+	if admin.Password == "" {
+		return nil, errors.New("password cannot be empty")
+	}
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(admin.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err
@@ -103,11 +106,33 @@ func (s *adminService) CreateAdmin(admin *entity.Admin) (*entity.Admin, error) {
 	if err != nil {
 		return nil, err
 	}
+	emailAddr := newAdmin.Email
+	err = s.emailSender.SendWelcomeEmail(emailAddr, "")
+
+	if err != nil {
+		return nil, err
+	}
+
+	resetCode := generateResetCode()
+	err = s.emailSender.SendVerificationEmail(newAdmin.Email, resetCode)
+	if err != nil {
+		return nil, err
+	}
+	err = s.adminRepository.SaveVerifCode(newAdmin.User_ID, resetCode)
+	if err != nil {
+		return nil, err
+	}
 
 	return newAdmin, nil
 }
 
 func (s *adminService) UpdateAdmin(admin *entity.Admin) (*entity.Admin, error) {
+	if admin.Email == "" {
+		return nil, errors.New("email cannot be empty")
+	}
+	if admin.Password == "" {
+		return nil, errors.New("password cannot be empty")
+	}
 	if admin.Password != "" {
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(admin.Password), bcrypt.DefaultCost)
 		if err != nil {
