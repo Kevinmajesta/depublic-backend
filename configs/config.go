@@ -14,8 +14,14 @@ type Config struct {
 	Redis    RedisConfig    `envPrefix:"REDIS_"`
 	JWT      JwtConfig      `envPrefix:"JWT_"`
 	Encrypt  EncryptConfig  `envPrefix:"ENCRYPT_"`
+	SMTP     SMTPConfig     `envPrefix:"SMTP_"`
 }
 
+type SMTPConfig struct {
+	Host     string `env:"HOST" envDefault:"smtp.larksuite.com"`
+	Port     string `env:"PORT" envDefault:"587"`
+	Password string `env:"PASSWORD" envDefault:"psE2O3OoYa1OUhA4"`
+}
 
 type PostgresConfig struct {
 	Host     string `env:"HOST" envDefault:"localhost"`
