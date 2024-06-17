@@ -9,13 +9,13 @@ import (
 	"gorm.io/gorm"
 )
 
-func BuildAppPublicRoutes(db *gorm.DB) []*route.Route {
+func BuildCategoryPublicRoutes(db *gorm.DB) []*route.Route {
 	categoryRepository := repository.NewCategoryRepository(db)
 	categoryService := service.NewCategoryService(categoryRepository)
 	categoryHandler := handler.NewCategoryHandler(categoryService)
-	return router.AppPublicRoutes(categoryHandler)
+	return router.CategoryPublicRoutes(categoryHandler)
 }
 
-func BuildAppPrivateRoutes() []*route.Route {
-	return router.AppPrivateRoutes()
+func BuildCategoryPrivateRoutes() []*route.Route {
+	return router.CategoryPrivateRoutes()
 }

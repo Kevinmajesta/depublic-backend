@@ -3,8 +3,8 @@ package router
 import (
 	"net/http"
 
-	"github.com/labstack/echo/v4"
 	"github.com/Kevinmajesta/depublic-backend/pkg/route"
+	"github.com/labstack/echo/v4"
 )
 
 func PublicRoutes() []*route.Route {

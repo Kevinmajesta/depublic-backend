@@ -2,21 +2,28 @@ package main
 
 import (
 	"github.com/Kevinmajesta/depublic-backend/configs"
-	"github.com/Kevinmajesta/depublic-backend/internal/http/router"
+	"github.com/Kevinmajesta/depublic-backend/internal/builder"
+	"github.com/Kevinmajesta/depublic-backend/pkg/postgres"
 	"github.com/Kevinmajesta/depublic-backend/pkg/server"
 )
 
 func main() {
-	// Memuat konfigurasi dari file .env
-	_, err := configs.NewConfig(".env")
+	cfg, err := configs.NewConfig(".env")
 	checkError(err)
 
-	// Mengambil rute publik dan privat
-	publicRoutes := router.PublicRoutes()
-	privateRoutes := router.PrivateRoutes()
+	db, err := postgres.InitPostgres(&cfg.Postgres)
+	checkError(err)
 
-	// Membuat server baru dengan rute-rute yang telah diambil
-	srv := server.NewServer("app", publicRoutes, privateRoutes)
+	// // CATEGORY
+	// categoryPublicRoutes := builder.BuildCategoryPublicRoutes(db)
+	// categoryPrivateRoutes := builder.BuildCategoryPrivateRoutes()
+
+	// EVENT
+	eventPublicRoutes := builder.BuildEventPublicRoutes(db)
+	eventPrivateRoutes := builder.BuildEventPrivateRoutes()
+
+	// srv := server.NewServer("app", categoryPublicRoutes, categoryPrivateRoutes)
+	srv := server.NewServer("app", eventPublicRoutes, eventPrivateRoutes)
 	srv.Run()
 }
 
