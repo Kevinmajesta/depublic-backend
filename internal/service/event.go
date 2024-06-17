@@ -7,12 +7,17 @@ import (
 )
 
 type EventService interface {
+	// TODO POST
 	AddEvent(event *entity.Event) (*entity.Event, error)
-	GetAllEvent() ([]entity.Event, error)
+	// TODO UPDATE
 	UpdateEvent(event *entity.Event) (*entity.Event, error)
 	// UpdateEventByID(eventID uuid.UUID, event *entity.Event) (*entity.Event, error)
+	// TODO DELETE
 	DeleteEventByID(eventID uuid.UUID) (*entity.Event, error)
+	// TODO GET
+	GetAllEvent() ([]entity.Event, error)
 	GetEventByID(eventID uuid.UUID) (*entity.Event, error)
+	SearchEventsByTitle(title string) ([]entity.Event, error)
 }
 
 type eventService struct {
@@ -46,4 +51,8 @@ func (s *eventService) GetAllEvent() ([]entity.Event, error) {
 
 func (s *eventService) GetEventByID(eventID uuid.UUID) (*entity.Event, error) {
 	return s.eventRepo.GetEventByID(eventID)
+}
+
+func (s *eventService) SearchEventsByTitle(title string) ([]entity.Event, error) {
+	return s.eventRepo.SearchByTitle(title)
 }

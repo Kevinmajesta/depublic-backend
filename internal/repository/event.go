@@ -12,6 +12,7 @@ type EventRepository interface {
 	UpdateEvent(event *entity.Event) (*entity.Event, error)
 	DeleteEventByID(eventID uuid.UUID) (*entity.Event, error)
 	GetEventByID(eventID uuid.UUID) (*entity.Event, error)
+	SearchByTitle(title string) ([]entity.Event, error)
 }
 
 type eventRepository struct {
@@ -97,4 +98,24 @@ func (r *eventRepository) GetEventByID(eventID uuid.UUID) (*entity.Event, error)
 		return nil, err
 	}
 	return &event, nil
+}
+
+// Search By Title
+//
+//	func (r *eventRepository) SearchByTitle(title string) ([]entity.Event, error) {
+//		var events []entity.Event
+//		if err := r.db.Where("title_event LIKE ?", "%"+title+"%").Find(&events).Error; err != nil {
+//			return nil, err
+//		}
+//		return events, nil
+//	}
+//
+// Updated for Search By Title
+func (r *eventRepository) SearchByTitle(title string) ([]entity.Event, error) {
+	var events []entity.Event
+	// Gunakan fungsi LOWER untuk mengabaikan perbedaan huruf besar dan kecil
+	if err := r.db.Where("LOWER(title_event) LIKE LOWER(?)", "%"+title+"%").Find(&events).Error; err != nil {
+		return nil, err
+	}
+	return events, nil
 }

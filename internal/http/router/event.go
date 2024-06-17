@@ -21,6 +21,11 @@ func EventPublicRoutes(eventHandler handler.EventHandler) []*route.Route {
 		},
 		{
 			Method:  http.MethodGet,
+			Path:    "/event/",
+			Handler: eventHandler.SearchEvents,
+		},
+		{
+			Method:  http.MethodGet,
 			Path:    "/event/:id",
 			Handler: eventHandler.GetEventByID,
 		},

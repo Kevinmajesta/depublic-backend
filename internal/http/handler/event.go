@@ -216,3 +216,17 @@ func (h *EventHandler) GetEventByID(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Get Event Success!", event))
 }
+
+// TODO GET SEARCH BY TITLE
+
+func (h *EventHandler) SearchEvents(c echo.Context) error {
+	title := c.QueryParam("title_event")
+	events, err := h.eventService.SearchEventsByTitle(title)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+	}
+	if title == "" {
+		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Name required"))
+	}
+	return c.JSON(http.StatusOK, events)
+}
