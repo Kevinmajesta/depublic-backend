@@ -18,10 +18,20 @@ type EventService interface {
 	GetAllEvent() ([]entity.Event, error)
 	GetEventByID(eventID uuid.UUID) (*entity.Event, error)
 	SearchEventsByTitle(title string) ([]entity.Event, error)
+	// TODO Filtering Events
+	FilterEvents(
+		categoryID *uuid.UUID,
+		startDate *string,
+		endDate *string,
+		cityEvent *string,
+		priceMin *int,
+		priceMax *int,
+	) ([]entity.Event, error)
 }
 
 type eventService struct {
 	eventRepo repository.EventRepository
+	// categoryService CategoryService
 }
 
 func NewEventService(eventRepo repository.EventRepository) EventService {
@@ -55,4 +65,16 @@ func (s *eventService) GetEventByID(eventID uuid.UUID) (*entity.Event, error) {
 
 func (s *eventService) SearchEventsByTitle(title string) ([]entity.Event, error) {
 	return s.eventRepo.SearchByTitle(title)
+}
+
+// Filtering Event
+func (s *eventService) FilterEvents(
+	categoryID *uuid.UUID,
+	startDate *string,
+	endDate *string,
+	cityEvent *string,
+	priceMin *int,
+	priceMax *int,
+) ([]entity.Event, error) {
+	return s.eventRepo.FilterEvents(categoryID, startDate, endDate, cityEvent, priceMin, priceMax)
 }

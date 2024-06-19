@@ -13,6 +13,16 @@ type EventRepository interface {
 	DeleteEventByID(eventID uuid.UUID) (*entity.Event, error)
 	GetEventByID(eventID uuid.UUID) (*entity.Event, error)
 	SearchByTitle(title string) ([]entity.Event, error)
+	// GetEventsByCategoryID(categoryID uuid.UUID) ([]entity.Event, error)
+	// Filter
+	FilterEvents(
+		categoryID *uuid.UUID,
+		dateEvent *string,
+		dateEventR *string,
+		cityEvent *string,
+		priceMin *int,
+		priceMax *int,
+	) ([]entity.Event, error)
 }
 
 type eventRepository struct {
@@ -32,29 +42,6 @@ func (r *eventRepository) AddEvent(event *entity.Event) (*entity.Event, error) {
 }
 
 // TODO UPDATE EVENT
-// func (r *eventRepository) UpdateEvent(event *entity.Event) (*entity.Event, error) {
-// 	var existingEvent entity.Event
-// 	if err := r.db.First(&existingEvent, "event_id = ?", event.EventID).Error; err != nil {
-// 		return nil, err
-// 	}
-
-// 	existingEvent.CategoryID = event.CategoryID
-// 	existingEvent.TitleEvent = event.TitleEvent
-// 	existingEvent.DateEvent = event.DateEvent
-// 	existingEvent.PriceEvent = event.PriceEvent
-// 	existingEvent.CityEvent = event.CityEvent
-// 	existingEvent.AddressEvent = event.AddressEvent
-// 	existingEvent.QtyEvent = event.QtyEvent
-// 	existingEvent.DescriptionEvent = event.DescriptionEvent
-// 	existingEvent.ImageURL = event.ImageURL
-
-// 	if err := r.db.Save(&existingEvent).Error; err != nil {
-// 		return nil, err
-// 	}
-
-// 	return &existingEvent, nil
-// }
-
 func (r *eventRepository) UpdateEvent(event *entity.Event) (*entity.Event, error) {
 	// Save the updated event
 	if err := r.db.Save(event).Error; err != nil {
@@ -115,6 +102,44 @@ func (r *eventRepository) SearchByTitle(title string) ([]entity.Event, error) {
 	var events []entity.Event
 	// Gunakan fungsi LOWER untuk mengabaikan perbedaan huruf besar dan kecil
 	if err := r.db.Where("LOWER(title_event) LIKE LOWER(?)", "%"+title+"%").Find(&events).Error; err != nil {
+		return nil, err
+	}
+	return events, nil
+}
+
+// TODO Get Events Filtering
+func (r *eventRepository) FilterEvents(
+	categoryID *uuid.UUID,
+	startDate *string,
+	endDate *string,
+	cityEvent *string,
+	priceMin *int,
+	priceMax *int,
+) ([]entity.Event, error) {
+	var events []entity.Event
+	query := r.db
+
+	if categoryID != nil {
+		query = query.Where("category_id = ?", *categoryID)
+	}
+	if startDate != nil && endDate != nil {
+		query = query.Where("date_event BETWEEN ? AND ?", *startDate, *endDate)
+	} else if startDate != nil {
+		query = query.Where("date_event >= ?", *startDate)
+	} else if endDate != nil {
+		query = query.Where("date_event <= ?", *endDate)
+	}
+	if cityEvent != nil {
+		query = query.Where("LOWER(city_event) = LOWER(?)", *cityEvent)
+	}
+	if priceMin != nil {
+		query = query.Where("price_event >= ?", *priceMin)
+	}
+	if priceMax != nil {
+		query = query.Where("price_event <= ?", *priceMax)
+	}
+
+	if err := query.Find(&events).Error; err != nil {
 		return nil, err
 	}
 	return events, nil

@@ -54,16 +54,11 @@ func (h *CategoryHandler) AddCategory(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Wrong input!"))
 	}
 
-	// TODO Cek Existing Name Category (STILL ERROR)
-	// existingCategory, err := h.categoryService.CheckCategoryByName(input.NameCategories)
-	// if err != nil {
-	// 	return c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, "Error checking existing category"))
-	// }
+	// Check input==nil
+	if input.NameCategories == "" {
+		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Name cannot be empty"))
+	}
 
-	// if existingCategory != nil {
-	// 	return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Already name category!"))
-	// }
-	//
 	newCategory := entity.NewCategory(input.NameCategories)
 
 	category, err := h.categoryService.AddCategory(newCategory)

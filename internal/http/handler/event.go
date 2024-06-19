@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	"github.com/Kevinmajesta/depublic-backend/internal/entity"
@@ -58,8 +59,17 @@ func (h *EventHandler) AddEvent(c echo.Context) error {
 	if err := c.Bind(req); err != nil {
 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Failed to bind request"))
 	}
+
+	// Validate check nil request error
 	// if err := c.Validate(req); err != nil {
 	// 	return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Validation failed"))
+	// }
+
+	// Try/Error (Error) For check nil input
+	// if req.CategoryID == uuid.Nil || req.TitleEvent == "" || req.DateEvent == "" ||
+	// 	req.PriceEvent == 0 || req.CityEvent == "" || req.AddressEvent == "" ||
+	// 	req.QtyEvent == 0 || req.DescriptionEvent == "" || req.Image == nil {
+	// 	return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Can not be empty"))
 	// }
 
 	file, err := c.FormFile("image")
@@ -228,5 +238,76 @@ func (h *EventHandler) SearchEvents(c echo.Context) error {
 	if title == "" {
 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Name required"))
 	}
+	// Check if title is not available
+	// if title != "title_event" {
+	// 	return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Event not found"))
+	// }
 	return c.JSON(http.StatusOK, events)
+}
+
+// TODO FILTER
+func (h *EventHandler) FilterEvents(c echo.Context) error {
+	var categoryID *uuid.UUID
+	var startDate *string
+	var endDate *string
+	var cityEvent *string
+	var priceMin *int
+	var priceMax *int
+
+	// Parse query params
+	if cid := c.QueryParam("category_id"); cid != "" {
+		id, err := uuid.Parse(cid)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Invalid category ID"))
+		}
+		categoryID = &id
+	}
+	if sd := c.QueryParam("start_date"); sd != "" {
+		startDate = &sd
+	} else {
+		// dateNow := time.Now().Format("2006-01-02")
+		// startDate = &dateNow
+		defaultStartDate := "1000-01-01"
+		startDate = &defaultStartDate
+	}
+	if ed := c.QueryParam("end_date"); ed != "" {
+		endDate = &ed
+	} else {
+		defaultEndDate := "9999-12-31"
+		endDate = &defaultEndDate
+	}
+	if ce := c.QueryParam("city_event"); ce != "" {
+		cityEvent = &ce
+	}
+	if pm := c.QueryParam("price_min"); pm != "" {
+		price, err := strconv.Atoi(pm)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Invalid minimum price"))
+		}
+		priceMin = &price
+	} else {
+		defaultPriceMin := 0
+		priceMin = &defaultPriceMin
+	}
+	if px := c.QueryParam("price_max"); px != "" {
+		price, err := strconv.Atoi(px)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Invalid maximum price"))
+		}
+		priceMax = &price
+	} else {
+		defaultPriceMax := 999999999
+		priceMax = &defaultPriceMax
+	}
+
+	events, err := h.eventService.FilterEvents(categoryID, startDate, endDate, cityEvent, priceMin, priceMax)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, err.Error()))
+	}
+
+	if (priceMin != nil || priceMax != nil || startDate != nil || endDate != nil) && len(events) == 0 {
+		return c.JSON(http.StatusNotFound, response.ErrorResponse(http.StatusNotFound, "Event Not Available"))
+	}
+
+	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Filter Events Success!", events))
 }

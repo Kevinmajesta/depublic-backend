@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"errors"
+
 	"github.com/Kevinmajesta/depublic-backend/internal/entity"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -12,6 +14,7 @@ type CategoryRepository interface {
 	GetAllCategory() ([]entity.EventCategory, error)
 	GetCategoryByID(categoryID uuid.UUID) (*entity.EventCategory, error)
 	GetCategoryByName(categoryName string) (*entity.EventCategory, error)
+
 	// TODO UPDATE
 	UpdateCategoryByID(category *entity.EventCategory) (*entity.EventCategory, error)
 	// TODO DELETE
@@ -57,9 +60,20 @@ func (r *categoryRepository) GetCategoryByID(categoryID uuid.UUID) (*entity.Even
 }
 
 // TODO GET CATEGORY BY NAME
+// func (r *categoryRepository) GetCategoryByName(categoryName string) (*entity.EventCategory, error) {
+// 	var category entity.EventCategory
+// 	if err := r.db.Find(&category, "name_categories = ?", categoryName).Error; err != nil {
+// 		return nil, err
+// 	}
+// 	return &category, nil
+// }
+
 func (r *categoryRepository) GetCategoryByName(categoryName string) (*entity.EventCategory, error) {
 	var category entity.EventCategory
-	if err := r.db.Find(&category, "name_categories = ?", categoryName).Error; err != nil {
+	if err := r.db.Where("name_categories = ?", categoryName).First(&category).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil // Return nil if no category found
+		}
 		return nil, err
 	}
 	return &category, nil

@@ -32,3 +32,31 @@ func checkError(err error) {
 		panic(err)
 	}
 }
+
+// func main() {
+// 	cfg, err := configs.NewConfig(".env")
+// 	checkError(err)
+
+// 	db, err := postgres.InitPostgres(&cfg.Postgres)
+// 	checkError(err)
+
+// 	// Build routes
+// 	categoryPublicRoutes := builder.BuildCategoryPublicRoutes(db)
+// 	categoryPrivateRoutes := builder.BuildCategoryPrivateRoutes()
+
+// 	eventPublicRoutes := builder.BuildEventPublicRoutes(db)
+// 	eventPrivateRoutes := builder.BuildEventPrivateRoutes()
+
+// 	// Combine all routes
+// 	allPublicRoutes := append(categoryPublicRoutes, eventPublicRoutes...)
+// 	allPrivateRoutes := append(categoryPrivateRoutes, eventPrivateRoutes...)
+
+// 	srv := server.NewServer("app", allPublicRoutes, allPrivateRoutes)
+// 	srv.Run()
+// }
+
+// func checkError(err error) {
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// }
