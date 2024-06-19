@@ -8,7 +8,7 @@ import (
 )
 
 type User struct {
-	User_ID            uuid.UUID `json:"user_id"`
+	UserId             uuid.UUID `json:"user_id"`
 	Fullname           string    `json:"fullname"`
 	Email              string    `json:"email"`
 	Password           string    `json:"password"`
@@ -34,7 +34,7 @@ func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 
 func NewUser(fullname, email, password, phone, role string, status, verification bool) *User {
 	return &User{
-		User_ID:      uuid.New(),
+		UserId:       uuid.New(),
 		Fullname:     fullname,
 		Email:        email,
 		Password:     password,
@@ -48,7 +48,7 @@ func NewUser(fullname, email, password, phone, role string, status, verification
 
 func UpdateUser(user_id uuid.UUID, fullname, email, password, phone, role string, status, verification bool) *User {
 	return &User{
-		User_ID:      user_id,
+		UserId:       user_id,
 		Fullname:     fullname,
 		Email:        email,
 		Password:     password,

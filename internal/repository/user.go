@@ -23,6 +23,9 @@ type UserRepository interface {
 	SaveVerifCode(userID uuid.UUID, resetCode string) error
 	FindUserByResetCode(resetCode string) (*entity.User, error)
 	FindUserByVerifCode(verifCode string) (*entity.User, error)
+	FindCartByUserId(UserId uuid.UUID) (int, error)
+	GetEventInCart(UserId uuid.UUID) ([]int, error)
+	GetEventName(EventId uuid.UUID) (string, error)
 }
 
 type userRepository struct {
@@ -86,7 +89,7 @@ func (r *userRepository) UpdateUser(user *entity.User) (*entity.User, error) {
 	}
 
 	// Update the database in one query.
-	if err := r.db.Model(user).Where("user_id = ?", user.User_ID).Updates(fields).Error; err != nil {
+	if err := r.db.Model(user).Where("user_id = ?", user.UserId).Updates(fields).Error; err != nil {
 		return user, err
 	}
 
@@ -94,7 +97,7 @@ func (r *userRepository) UpdateUser(user *entity.User) (*entity.User, error) {
 }
 
 func (r *userRepository) DeleteUser(user *entity.User) (bool, error) {
-	if err := r.db.Delete(&entity.User{}, user.User_ID).Error; err != nil {
+	if err := r.db.Delete(&entity.User{}, user.UserId).Error; err != nil {
 		return false, err
 	}
 	return true, nil
@@ -167,4 +170,34 @@ func (r *userRepository) FindUserByVerifCode(verifCode string) (*entity.User, er
 		return nil, err
 	}
 	return &user, nil
+}
+
+func (r *userRepository) FindCartByUserId(UserId uuid.UUID) (int, error) {
+	var userId int
+
+	if err := r.db.Raw("SELECT event_id FROM carts WHERE user_id = ?", UserId).Scan(&userId).Error; err != nil {
+		return 0, err
+	}
+
+	return userId, nil
+}
+
+func (r *userRepository) GetEventInCart(UserId uuid.UUID) ([]int, error) {
+	var events []int
+
+	if err := r.db.Raw("SELECT event_id FROM carts WHERE user_id = ?", UserId).Scan(&events).Error; err != nil {
+		return []int{}, err
+	}
+
+	return events, nil
+}
+
+func (r *userRepository) GetEventName(EventId uuid.UUID) (string, error) {
+	var titleEvent string
+
+	if err := r.db.Raw("SELECT title_event FROM events WHERE event_id = ?", EventId).Scan(&titleEvent).Error; err != nil {
+		return "", err
+	}
+
+	return titleEvent, nil
 }

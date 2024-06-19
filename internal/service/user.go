@@ -26,6 +26,7 @@ type UserService interface {
 	EmailExists(email string) bool
 	GetUserProfileByID(userID string) (*entity.User, error)
 	VerifUser(resetCode string) error
+	// GetCart(UserId uuid.UUID) (binder.GetCartResponse, error)
 }
 
 type userService struct {
@@ -34,6 +35,8 @@ type userService struct {
 	encryptTool    encrypt.EncryptTool
 	emailSender    *email.EmailSender
 }
+
+var InternalError = "internal server error"
 
 func NewUserService(userRepository repository.UserRepository, tokenUseCase token.TokenUseCase,
 	encryptTool encrypt.EncryptTool, emailSender *email.EmailSender) *userService {
@@ -65,7 +68,7 @@ func (s *userService) LoginUser(email string, password string) (string, error) {
 	user.Phone, _ = s.encryptTool.Decrypt(user.Phone)
 
 	claims := token.JwtCustomClaims{
-		ID:    user.User_ID.String(),
+		ID:    user.UserId.String(),
 		Email: user.Email,
 		Role:  "user",
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -117,7 +120,7 @@ func (s *userService) CreateUser(user *entity.User) (*entity.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = s.userRepository.SaveVerifCode(user.User_ID, resetCode)
+	err = s.userRepository.SaveVerifCode(user.UserId, resetCode)
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +169,7 @@ func (s *userService) RequestPasswordReset(email string) error {
 	resetCode := generateResetCode()
 	expiresAt := time.Now().Add(1 * time.Hour)
 
-	err = s.userRepository.SaveResetCode(user.User_ID, resetCode, expiresAt)
+	err = s.userRepository.SaveResetCode(user.UserId, resetCode, expiresAt)
 	if err != nil {
 		return errors.New("failed to save reset code")
 	}
