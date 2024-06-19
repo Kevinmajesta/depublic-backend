@@ -265,9 +265,9 @@ func (h *EventHandler) FilterEvents(c echo.Context) error {
 	if sd := c.QueryParam("start_date"); sd != "" {
 		startDate = &sd
 	} else {
-		// dateNow := time.Now().Format("2006-01-02")
+		// dateNow := time.Now().Format("2000-01-01")
 		// startDate = &dateNow
-		defaultStartDate := "1000-01-01"
+		defaultStartDate := "2000-01-01"
 		startDate = &defaultStartDate
 	}
 	if ed := c.QueryParam("end_date"); ed != "" {
@@ -310,4 +310,33 @@ func (h *EventHandler) FilterEvents(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Filter Events Success!", events))
+}
+
+// TODO SORT EVENT
+// func (h *EventHandler) SortEvents(c echo.Context) error {
+// 	sortBy := c.QueryParam("sort_by")
+// 	if sortBy == "" {
+// 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sort criteria required"))
+// 	}
+
+// 	events, err := h.eventService.SortEvents(sortBy)
+// 	if err != nil {
+// 		return c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, err.Error()))
+// 	}
+
+// 	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Sort Events Success!", events))
+// }
+
+func (h *EventHandler) SortEvents(c echo.Context) error {
+	sortBy := c.QueryParam("sort_by")
+	if sortBy == "" {
+		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sort criteria required"))
+	}
+
+	events, err := h.eventService.SortEvents(sortBy)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Sort Events Success!", events))
 }

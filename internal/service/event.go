@@ -27,6 +27,8 @@ type EventService interface {
 		priceMin *int,
 		priceMax *int,
 	) ([]entity.Event, error)
+	// TODO SORT
+	SortEvents(sortBy string) ([]entity.Event, error)
 }
 
 type eventService struct {
@@ -77,4 +79,9 @@ func (s *eventService) FilterEvents(
 	priceMax *int,
 ) ([]entity.Event, error) {
 	return s.eventRepo.FilterEvents(categoryID, startDate, endDate, cityEvent, priceMin, priceMax)
+}
+
+// SORT EVENT
+func (s *eventService) SortEvents(sortBy string) ([]entity.Event, error) {
+	return s.eventRepo.SortEvents(sortBy)
 }

@@ -1,20 +1,28 @@
 package repository
 
 import (
+	"time"
+
 	"github.com/Kevinmajesta/depublic-backend/internal/entity"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type EventRepository interface {
+	// TODO ADD
 	AddEvent(event *entity.Event) (*entity.Event, error)
+	// TODO GET
 	GetAllEvent() ([]entity.Event, error)
-	UpdateEvent(event *entity.Event) (*entity.Event, error)
-	DeleteEventByID(eventID uuid.UUID) (*entity.Event, error)
 	GetEventByID(eventID uuid.UUID) (*entity.Event, error)
+	// TODO UPDATE
+	UpdateEvent(event *entity.Event) (*entity.Event, error)
+	// TODO DELETE
+	DeleteEventByID(eventID uuid.UUID) (*entity.Event, error)
+	// TODO SEARCH
 	SearchByTitle(title string) ([]entity.Event, error)
-	// GetEventsByCategoryID(categoryID uuid.UUID) ([]entity.Event, error)
-	// Filter
+	// TODO SORT
+	SortEvents(sortBy string) ([]entity.Event, error)
+	// TODO FILTER
 	FilterEvents(
 		categoryID *uuid.UUID,
 		dateEvent *string,
@@ -35,7 +43,8 @@ func NewEventRepository(db *gorm.DB) EventRepository {
 
 // TODO ADD EVENT
 func (r *eventRepository) AddEvent(event *entity.Event) (*entity.Event, error) {
-	if err := r.db.Create(&event).Error; err != nil {
+	query := r.db
+	if err := query.Create(&event).Error; err != nil {
 		return event, err
 	}
 	return event, nil
@@ -44,7 +53,8 @@ func (r *eventRepository) AddEvent(event *entity.Event) (*entity.Event, error) {
 // TODO UPDATE EVENT
 func (r *eventRepository) UpdateEvent(event *entity.Event) (*entity.Event, error) {
 	// Save the updated event
-	if err := r.db.Save(event).Error; err != nil {
+	query := r.db
+	if err := query.Save(event).Error; err != nil {
 		return nil, err
 	}
 	return event, nil
@@ -60,9 +70,9 @@ func (r *eventRepository) UpdateEventByID(eventID uuid.UUID, event *entity.Event
 func (r *eventRepository) DeleteEventByID(eventID uuid.UUID) (*entity.Event, error) {
 	// Create a variable to hold the event
 	var event entity.Event
-
+	query := r.db
 	// Find the event by ID and delete it
-	if err := r.db.Where("event_id = ?", eventID).Unscoped().Delete(&event).Error; err != nil {
+	if err := query.Where("event_id = ?", eventID).Unscoped().Delete(&event).Error; err != nil {
 		return nil, err
 	}
 
@@ -72,7 +82,8 @@ func (r *eventRepository) DeleteEventByID(eventID uuid.UUID) (*entity.Event, err
 // TODO GET ALL EVENT
 func (r *eventRepository) GetAllEvent() ([]entity.Event, error) {
 	var events []entity.Event
-	if err := r.db.Find(&events).Error; err != nil {
+	query := r.db
+	if err := query.Find(&events).Error; err != nil {
 		return nil, err
 	}
 	return events, nil
@@ -81,7 +92,8 @@ func (r *eventRepository) GetAllEvent() ([]entity.Event, error) {
 // GET EVENT BY ID
 func (r *eventRepository) GetEventByID(eventID uuid.UUID) (*entity.Event, error) {
 	var event entity.Event
-	if err := r.db.First(&event, "event_id = ?", eventID).Error; err != nil {
+	query := r.db
+	if err := query.First(&event, "event_id = ?", eventID).Error; err != nil {
 		return nil, err
 	}
 	return &event, nil
@@ -100,8 +112,9 @@ func (r *eventRepository) GetEventByID(eventID uuid.UUID) (*entity.Event, error)
 // Updated for Search By Title
 func (r *eventRepository) SearchByTitle(title string) ([]entity.Event, error) {
 	var events []entity.Event
+	query := r.db
 	// Gunakan fungsi LOWER untuk mengabaikan perbedaan huruf besar dan kecil
-	if err := r.db.Where("LOWER(title_event) LIKE LOWER(?)", "%"+title+"%").Find(&events).Error; err != nil {
+	if err := query.Where("LOWER(title_event) LIKE LOWER(?)", "%"+title+"%").Find(&events).Error; err != nil {
 		return nil, err
 	}
 	return events, nil
@@ -137,6 +150,55 @@ func (r *eventRepository) FilterEvents(
 	}
 	if priceMax != nil {
 		query = query.Where("price_event <= ?", *priceMax)
+	}
+
+	if err := query.Find(&events).Error; err != nil {
+		return nil, err
+	}
+	return events, nil
+}
+
+// TODO SORT
+// func (r *eventRepository) SortEvents(sortBy string) ([]entity.Event, error) {
+// 	var events []entity.Event
+// 	query := r.db
+
+// 	// Apply sorting based on the sortBy parameter
+// 	switch sortBy {
+// 	case "terbaru":
+// 		query = query.Find(&events).Order("created_at DESC")
+// 	case "termahal":
+// 		query = query.Find(&events).Order("price_event DESC")
+// 	case "termurah":
+// 		query = query.Find(&events).Order("price_event ASC")
+// 	default:
+// 		// Default sorting if sort_by is not recognized
+// 		query = query.Find(&events).Order("date_event DESC")
+// 	}
+
+// 	if err := query.Find(&events).Error; err != nil {
+// 		return nil, err
+// 	}
+// 	return events, nil
+// }
+
+func (r *eventRepository) SortEvents(sortBy string) ([]entity.Event, error) {
+	var events []entity.Event
+	query := r.db
+
+	// Apply sorting based on the sortBy parameter
+	switch sortBy {
+	case "terbaru":
+		query = query.Order("created_at DESC")
+	case "termahal":
+		query = query.Order("price_event DESC")
+	case "termurah":
+		query = query.Order("price_event ASC")
+	case "terdekat":
+		query = query.Order("date_event ASC").Where("date_event >= ?", time.Now().Format("2000-01-01"))
+	default:
+		// Default sorting if sort_by is not recognized
+		query = query.Order("date_event DESC")
 	}
 
 	if err := query.Find(&events).Error; err != nil {
