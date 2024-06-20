@@ -19,111 +19,7 @@ var (
 )
 
 func PublicRoutes(userHandler handler.UserHandler,
-	adminHandler handler.AdminHandler) []*route.Route {
-	return []*route.Route{
-		{
-			Method:  http.MethodPost,
-			Path:    "/login",
-			Handler: userHandler.LoginUser,
-		},
-		{
-			Method:  http.MethodPost,
-			Path:    "/users",
-			Handler: userHandler.CreateUser,
-		},
-		{
-			Method:  http.MethodPost,
-			Path:    "/login/admin",
-			Handler: adminHandler.LoginAdmin,
-		},
-		{
-			Method:  http.MethodPost,
-			Path:    "/admins",
-			Handler: adminHandler.CreateAdmin,
-		},
-		{
-			Method:  http.MethodPost,
-			Path:    "/password-reset-request",
-			Handler: userHandler.RequestPasswordReset,
-		},
-		{
-			Method:  http.MethodPost,
-			Path:    "/verification-account",
-			Handler: userHandler.VerifUser,
-		},
-		{
-			Method:  http.MethodPost,
-			Path:    "/password-reset",
-			Handler: userHandler.ResetPassword,
-		},
-	}
-}
-
-func PrivateRoutes(userHandler handler.UserHandler,
-	adminHandler handler.AdminHandler) []*route.Route {
-	return []*route.Route{
-
-		{
-			Method:  http.MethodPut,
-			Path:    "/users/:user_id",
-			Handler: userHandler.UpdateUser,
-			Roles:   allRoles,
-		},
-		{
-			Method:  http.MethodDelete,
-			Path:    "/users/:user_id",
-			Handler: userHandler.DeleteUser,
-			Roles:   allRoles,
-		},
-		{
-			Method:  http.MethodGet,
-			Path:    "/users",
-			Handler: adminHandler.FindAllUser,
-			Roles:   onlyAdmin,
-		},
-		{
-			Method:  http.MethodPut,
-			Path:    "/admins/:user_id",
-			Handler: adminHandler.UpdateAdmin,
-			Roles:   onlyAdmin,
-		},
-		{
-			Method:  http.MethodDelete,
-			Path:    "/admins/:user_id",
-			Handler: adminHandler.DeleteAdmin,
-			Roles:   onlyAdmin,
-		},
-		{
-			Method:  http.MethodGet,
-			Path:    "/users/:user_id",
-			Handler: userHandler.GetUserProfile,
-			Roles:   allRoles,
-		},
-	}
-}
-
-package router
-
-import (
-	"net/http"
-
-	"github.com/Kevinmajesta/depublic-backend/internal/http/handler"
-	"github.com/Kevinmajesta/depublic-backend/pkg/route"
-)
-
-const (
-	Admin = "admin"
-	User  = "user"
-)
-
-var (
-	allRoles  = []string{Admin, User}
-	onlyAdmin = []string{Admin}
-	onlyUser  = []string{User}
-)
-
-func PublicRoutes(userHandler handler.UserHandler,
-	adminHandler handler.AdminHandler, ticketHandler handler.TicketHandler, cartHandler handler.CartHandler, wishlistHandler handler.WishlistHandler) []*route.Route {
+	adminHandler handler.AdminHandler, cartHandler handler.CartHandler, wishlistHandler handler.WishlistHandler) []*route.Route {
 	return []*route.Route{
 		{
 			Method:  http.MethodPost,
@@ -215,7 +111,7 @@ func PublicRoutes(userHandler handler.UserHandler,
 
 func PrivateRoutes(userHandler handler.UserHandler,
 	adminHandler handler.AdminHandler,
-	ticketHandler handler.TicketHandler, transactionHandler handler.TransactionHandler, cartHandler handler.CartHandler, wishlistHandler handler.WishlistHandler) []*route.Route {
+	transactionHandler handler.TransactionHandler, cartHandler handler.CartHandler, wishlistHandler handler.WishlistHandler) []*route.Route {
 	return []*route.Route{
 
 		{
@@ -236,12 +132,7 @@ func PrivateRoutes(userHandler handler.UserHandler,
 			Handler: adminHandler.FindAllUser,
 			Roles:   onlyAdmin,
 		},
-		{
-			Method:  http.MethodGet,
-			Path:    "/tickets",
-			Handler: ticketHandler.FindAllTicket,
-			Roles:   onlyAdmin,
-		},
+
 		{
 			Method:  http.MethodPut,
 			Path:    "/admins/:user_id",
@@ -254,29 +145,32 @@ func PrivateRoutes(userHandler handler.UserHandler,
 			Handler: adminHandler.DeleteAdmin,
 			Roles:   onlyAdmin,
 		},
-		{
-			Method:  http.MethodGet,
-			Path:    "/tickets/event/:eventID",
-			Handler: ticketHandler.FindTicketsByEventID,
-			Roles:   onlyAdmin,
-		},
+
 		{
 			Method:  http.MethodGet,
 			Path:    "/users/:user_id",
 			Handler: userHandler.GetUserProfile,
 			Roles:   allRoles,
 		},
+
 		{
 			Method:  http.MethodPost,
-			Path:    "/transaction/create",
+			Path:    "transaction/create",
 			Handler: transactionHandler.CreateTransaction,
 			Roles:   allRoles,
 		},
 
 		{
 			Method:  http.MethodGet,
-			Path:    "/transaction/all",
+			Path:    "transaction/all",
 			Handler: transactionHandler.FindAllTransaction,
+			Roles:   onlyAdmin,
+		},
+
+		{
+			Method:  http.MethodPost,
+			Path:    "transaction/check-pay",
+			Handler: transactionHandler.CheckPayTransaction,
 			Roles:   allRoles,
 		},
 	}

@@ -26,10 +26,6 @@ func BuildPublicRoutes(db *gorm.DB, redisDB *redis.Client, tokenUseCase token.To
 	adminService := service.NewAdminService(adminRepository, tokenUseCase, encryptTool, emailService)
 	adminHandler := handler.NewAdminHandler(adminService)
 
-	ticketRepository := repository.NewTicketRepository(db, nil)
-	ticketService := service.NewTicketService(ticketRepository, tokenUseCase)
-	ticketHandler := handler.NewTicketHandler(ticketService)
-
 	wishlistRepository := repository.NewWishlistRepository(db, cacheable)
 	wishlistService := service.NewWishlistService(wishlistRepository)
 	wishlistHandler := handler.NewWishlistHandler(wishlistService)
@@ -40,7 +36,7 @@ func BuildPublicRoutes(db *gorm.DB, redisDB *redis.Client, tokenUseCase token.To
 	cartService := service.NewCartService(cartRepository, eventRepository)
 	cartHandler := handler.NewCartHandler(cartService)
 
-	return router.PublicRoutes(userHandler, adminHandler, ticketHandler, cartHandler, wishlistHandler)
+	return router.PublicRoutes(userHandler, adminHandler, cartHandler, wishlistHandler)
 }
 
 func BuildPrivateRoutes(db *gorm.DB, redisDB *redis.Client, encryptTool encrypt.EncryptTool, entityCfg *entity.Config) []*route.Route {
@@ -53,14 +49,6 @@ func BuildPrivateRoutes(db *gorm.DB, redisDB *redis.Client, encryptTool encrypt.
 	adminService := service.NewAdminService(adminRepository, nil, encryptTool, nil)
 	adminHandler := handler.NewAdminHandler(adminService)
 
-	ticketRepository := repository.NewTicketRepository(db, cacheable)
-	ticketService := service.NewTicketService(ticketRepository, nil)
-	ticketHandler := handler.NewTicketHandler(ticketService)
-
-	transactionRepository := repository.NewTransactionRepository(db, cacheable)
-	transactionService := service.NewTransactionService(transactionRepository)
-	transactionHandler := handler.NewTransactionHandler(transactionService)
-
 	wishlistRepository := repository.NewWishlistRepository(db, cacheable)
 	wishlistService := service.NewWishlistService(wishlistRepository)
 	wishlistHandler := handler.NewWishlistHandler(wishlistService)
@@ -71,5 +59,9 @@ func BuildPrivateRoutes(db *gorm.DB, redisDB *redis.Client, encryptTool encrypt.
 	cartService := service.NewCartService(cartRepository, eventRepository)
 	cartHandler := handler.NewCartHandler(cartService)
 
-	return router.PrivateRoutes(userHandler, adminHandler, ticketHandler, transactionHandler, cartHandler, wishlistHandler)
+	transactionRepository := repository.NewTransactionRepository(db, cacheable)
+	transactionService := service.NewTransactionService(transactionRepository)
+	transactionHandler := handler.NewTransactionHandler(transactionService)
+
+	return router.PrivateRoutes(userHandler, adminHandler, transactionHandler, cartHandler, wishlistHandler)
 }
