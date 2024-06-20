@@ -7,7 +7,7 @@ type Wishlist struct {
 	UserId     uuid.UUID `json:"user_id" gorm:"not null"`
 	User       User      `json:"-" gorm:"foreignkey:UserId"`
 	EventId    uuid.UUID `json:"event_id" gorm:"not null"`
-	Event      Event     `json:"-" gorm:"foreignkey:EventId;constraint:OnDelete:CASCADE"`
+	Event      Events    `json:"-" gorm:"foreignkey:EventId;constraint:OnDelete:CASCADE"`
 	Auditable
 }
 

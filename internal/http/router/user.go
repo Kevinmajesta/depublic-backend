@@ -63,7 +63,7 @@ func PublicRoutes(userHandler handler.UserHandler,
 		},
 		{
 			Method:  http.MethodPost,
-			Path:    "/wishlist",
+			Path:    "/wishlist/create",
 			Handler: wishlistHandler.AddWishlist,
 		},
 		{

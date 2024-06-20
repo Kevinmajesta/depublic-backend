@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"strconv"
 
 	"github.com/Kevinmajesta/depublic-backend/internal/entity"
 	"github.com/Kevinmajesta/depublic-backend/internal/repository"
@@ -9,10 +10,10 @@ import (
 )
 
 type CartService interface {
-	GetAllCart() ([]entity.Cart, error)
-	GetCartById(CartId uuid.UUID) (*entity.Cart, error)
-	GetCartByUserId(UserId uuid.UUID) (*entity.Cart, error)
-	AddToCart(UserId, EventId uuid.UUID) (*entity.Cart, error)
+	GetAllCart() ([]entity.Carts, error)
+	GetCartById(CartId uuid.UUID) (*entity.Carts, error)
+	GetCartByUserId(UserId uuid.UUID) (*entity.Carts, error)
+	AddToCart(UserId, EventId uuid.UUID) (*entity.Carts, error)
 	RemoveCart(CartId uuid.UUID) (bool, error)
 	UpdateQuantityAdd(UserId, EventId uuid.UUID) error
 	UpdateQuantityLess(UserId, EventId uuid.UUID) error
@@ -27,7 +28,7 @@ func NewCartService(cartRepository repository.CartRepository, repo repository.Ev
 	return &cartService{cartRepository: cartRepository, repo: repo}
 }
 
-func (s *cartService) GetAllCart() ([]entity.Cart, error) {
+func (s *cartService) GetAllCart() ([]entity.Carts, error) {
 	carts, err := s.cartRepository.GetAllCart()
 	if err != nil {
 		return nil, err
@@ -35,11 +36,11 @@ func (s *cartService) GetAllCart() ([]entity.Cart, error) {
 	return carts, nil
 }
 
-func (s *cartService) GetCartById(CartId uuid.UUID) (*entity.Cart, error) {
+func (s *cartService) GetCartById(CartId uuid.UUID) (*entity.Carts, error) {
 	return s.cartRepository.FindCartById(CartId)
 }
 
-func (s *cartService) GetCartByUserId(UserId uuid.UUID) (*entity.Cart, error) {
+func (s *cartService) GetCartByUserId(UserId uuid.UUID) (*entity.Carts, error) {
 
 	eventAdd, err := s.cartRepository.CheckEventAdd(UserId)
 	if err != nil {
@@ -54,7 +55,7 @@ func (s *cartService) GetCartByUserId(UserId uuid.UUID) (*entity.Cart, error) {
 	return s.cartRepository.GetCartByUserId(UserId)
 }
 
-func (s *cartService) AddToCart(UserId, EventId uuid.UUID) (*entity.Cart, error) {
+func (s *cartService) AddToCart(UserId, EventId uuid.UUID) (*entity.Carts, error) {
 
 	//check if the user already has a quantity of an event in his cart.
 	exist, err := s.cartRepository.CheckIfEventAlreadyAdded(UserId, EventId)
@@ -101,17 +102,18 @@ func (s *cartService) AddToCart(UserId, EventId uuid.UUID) (*entity.Cart, error)
 	}
 
 	// Calculate the total price
-	totalPrice := priceEvent * 1
+	pricetot := priceEvent * 1
+	totalPrice := strconv.Itoa(pricetot)
 
 	// Create the new cart entry
-	cart := &entity.Cart{
-		CartId:     uuid.New(),
-		UserId:     UserId,
-		EventId:    EventId,
-		Qty:        1,
-		TicketDate: dateEvent,
-		Price:      totalPrice,
-		Auditable:  entity.NewAuditable(),
+	cart := &entity.Carts{
+		Cart_id:     uuid.New().String(),
+		User_id:     UserId.String(),
+		Event_id:    EventId.String(),
+		Qty:         "1",
+		Ticket_date: dateEvent,
+		Price:       totalPrice,
+		Auditable:   entity.NewAuditable(),
 	}
 
 	// Add the new cart entry to the repository

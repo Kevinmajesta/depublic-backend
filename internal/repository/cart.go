@@ -11,18 +11,18 @@ import (
 )
 
 type CartRepository interface {
-	GetAllCart() ([]entity.Cart, error)
-	FindCartById(CartId uuid.UUID) (*entity.Cart, error)
-	GetCartByUserId(UserId uuid.UUID) (*entity.Cart, error)
-	GetCartByUserAndEvent(UserId, EventId uuid.UUID) (*entity.Cart, error)
+	GetAllCart() ([]entity.Carts, error)
+	FindCartById(CartId uuid.UUID) (*entity.Carts, error)
+	GetCartByUserId(UserId uuid.UUID) (*entity.Carts, error)
+	GetCartByUserAndEvent(UserId, EventId uuid.UUID) (*entity.Carts, error)
 	CheckIfEventAlreadyAdded(UserId, EventId uuid.UUID) (bool, error)
 	CheckEventAdd(UserId uuid.UUID) (bool, error)
-	CreateCart(cart *entity.Cart) error
+	CreateCart(cart *entity.Carts) error
 	UpdateQuantityAdd(UserId, EventId uuid.UUID) error
 	UpdateQuantityLess(UserId, EventId uuid.UUID) error
 	UpdateTotalPrice(UserId, EventId uuid.UUID, price int) error
 	GetUserTotalQtyInCart(UserId, EventId uuid.UUID) (int, error)
-	RemoveCart(cart *entity.Cart) (bool, error)
+	RemoveCart(cart *entity.Carts) (bool, error)
 }
 type cartRepository struct {
 	db        *gorm.DB
@@ -33,8 +33,8 @@ func NewCartRepository(db *gorm.DB, cacheable cache.Cacheable) CartRepository {
 	return &cartRepository{db: db, cacheable: cacheable}
 }
 
-func (r *cartRepository) GetAllCart() ([]entity.Cart, error) {
-	carts := make([]entity.Cart, 0)
+func (r *cartRepository) GetAllCart() ([]entity.Carts, error) {
+	carts := make([]entity.Carts, 0)
 
 	key := "GetAllCarts"
 
@@ -59,8 +59,8 @@ func (r *cartRepository) GetAllCart() ([]entity.Cart, error) {
 	return carts, nil
 }
 
-func (r *cartRepository) FindCartById(CartId uuid.UUID) (*entity.Cart, error) {
-	cart := &entity.Cart{}
+func (r *cartRepository) FindCartById(CartId uuid.UUID) (*entity.Carts, error) {
+	cart := &entity.Carts{}
 
 	if err := r.db.First(cart, "cart_id = ?", CartId).Error; err != nil {
 		return nil, err
@@ -69,8 +69,8 @@ func (r *cartRepository) FindCartById(CartId uuid.UUID) (*entity.Cart, error) {
 	return cart, nil
 }
 
-func (r *cartRepository) GetCartByUserId(UserId uuid.UUID) (*entity.Cart, error) {
-	user := &entity.Cart{}
+func (r *cartRepository) GetCartByUserId(UserId uuid.UUID) (*entity.Carts, error) {
+	user := &entity.Carts{}
 
 	if err := r.db.Select("event_id, qty, ticket_date, price").First(user, "user_id = ?", UserId).Error; err != nil {
 		return nil, err
@@ -79,8 +79,8 @@ func (r *cartRepository) GetCartByUserId(UserId uuid.UUID) (*entity.Cart, error)
 	return user, nil
 }
 
-func (r *cartRepository) GetCartByUserAndEvent(UserId, EventId uuid.UUID) (*entity.Cart, error) {
-	var cart entity.Cart
+func (r *cartRepository) GetCartByUserAndEvent(UserId, EventId uuid.UUID) (*entity.Carts, error) {
+	var cart entity.Carts
 
 	err := r.db.Raw("SELECT * FROM carts WHERE user_id = ? AND event_id = ?", UserId, EventId).Scan(&cart).Error
 	if err != nil {
@@ -115,10 +115,10 @@ func (r *cartRepository) CheckEventAdd(UserId uuid.UUID) (bool, error) {
 	return eventAdd >= 1, nil
 }
 
-func (r *cartRepository) CreateCart(cart *entity.Cart) error {
+func (r *cartRepository) CreateCart(cart *entity.Carts) error {
 	err := r.db.Exec(
 		"INSERT INTO carts (cart_id, user_id, event_id, qty, ticket_date, price) VALUES (?, ?, ?, ?, ?, ?)",
-		cart.CartId, cart.UserId, cart.EventId, cart.Qty, cart.TicketDate, cart.Price,
+		cart.Cart_id, cart.User_id, cart.Event_id, cart.Qty, cart.Ticket_date, cart.Price,
 	).Error
 	if err != nil {
 		return err
@@ -165,7 +165,7 @@ func (r *cartRepository) GetUserTotalQtyInCart(UserId, EventId uuid.UUID) (int, 
 	return totalQty, nil
 }
 
-func (r *cartRepository) RemoveCart(cart *entity.Cart) (bool, error) {
+func (r *cartRepository) RemoveCart(cart *entity.Carts) (bool, error) {
 	// Hapus entri dari keranjang (hard delete)
 	if err := r.db.Unscoped().Delete(cart).Error; err != nil {
 		return false, err

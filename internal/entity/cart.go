@@ -9,3 +9,15 @@ type Carts struct {
 	Price       string `json:"price"`
 	Auditable
 }
+
+func NewCart(cart_id, user_id, event_id, qty, ticket_date, price string) *Carts {
+	return &Carts{
+		Cart_id:     cart_id,
+		User_id:     user_id,
+		Event_id:    event_id,
+		Qty:         qty,
+		Ticket_date: ticket_date,
+		Price:       price,
+		Auditable:   NewAuditable(),
+	}
+}

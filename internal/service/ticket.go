@@ -8,9 +8,9 @@ import (
 )
 
 type TicketService interface {
-	FindAllTicket() ([]entity.Ticket, error)
-	FindTicketsByEventID(eventID uuid.UUID) ([]entity.Ticket, error)
-	CreateTicket(ticket *entity.Ticket) (*entity.Ticket, error) // Fungsi baru untuk membuat tiket
+	FindAllTicket() ([]entity.Tickets, error)
+	FindTicketsByEventID(eventID uuid.UUID) ([]entity.Tickets, error)
+	CreateTicket(ticket *entity.Tickets) (*entity.Tickets, error) // Fungsi baru untuk membuat tiket
 }
 
 type ticketService struct {
@@ -25,18 +25,14 @@ func NewTicketService(ticketRepository repository.TicketRepository, tokenUseCase
 	}
 }
 
-func (s *ticketService) FindAllTicket() ([]entity.Ticket, error) {
+func (s *ticketService) FindAllTicket() ([]entity.Tickets, error) {
 	return s.ticketRepository.FindAllTicket()
 }
 
-func (s *ticketService) FindTicketsByEventID(eventID uuid.UUID) ([]entity.Ticket, error) {
+func (s *ticketService) FindTicketsByEventID(eventID uuid.UUID) ([]entity.Tickets, error) {
 	tickets, err := s.ticketRepository.FindTicketsByEventID(eventID)
 	if err != nil {
 		return nil, err
 	}
 	return tickets, nil
-}
-
-func (s *ticketService) CreateTicket(ticket *entity.Ticket) (*entity.Ticket, error) {
-	return s.ticketRepository.CreateTicket(ticket)
 }

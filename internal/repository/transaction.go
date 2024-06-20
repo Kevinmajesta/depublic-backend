@@ -70,7 +70,7 @@ func (r *transactionRepository) FindAllTransaction() ([]entity.Transactions, err
 
 	key := "FindAllTransactions"
 
-	data := r.cacheable.Get(key)
+	data, _ := r.cacheable.Get(key)
 	if data == "" {
 		if err := r.db.Find(&transaction).Error; err != nil {
 			return transaction, err
@@ -96,7 +96,7 @@ func (r *transactionRepository) FindEventByID(Event_id uuid.UUID) (*entity.Event
 	eventsdata := &events
 	key := "FindEventByID"
 
-	data := r.cacheable.Get(key)
+	data, _ := r.cacheable.Get(key)
 
 	if data == "" {
 
@@ -126,7 +126,7 @@ func (r *transactionRepository) FindTrxByID(Transaction_id uuid.UUID) (*entity.T
 	trxsdata := &trx
 	key := "FindtrxByID"
 
-	data := r.cacheable.Get(key)
+	data, _ := r.cacheable.Get(key)
 
 	if data == "" {
 
@@ -156,7 +156,7 @@ func (r *transactionRepository) FindTrxrelationByID(Transaction_id uuid.UUID, Us
 	trxsdata := &trx
 	key := "FindTrxrelationByID"
 
-	data := r.cacheable.Get(key)
+	data, _ := r.cacheable.Get(key)
 
 	if data == "" {
 
@@ -187,11 +187,11 @@ func (r *transactionRepository) FindTrxrelationadminByID(User_id uuid.UUID) ([]e
 	// trxsdata := &trx
 	key := "FindTrxrelationByID"
 
-	data := r.cacheable.Get(key)
+	data, _ := r.cacheable.Get(key)
 
 	if data == "" {
 
-		err := r.db.Raw(`SELECT t.* FROM transactions t JOIN users u ON t.user_id = ? AND t.status = true`, User_id).Scan(&trx).Error
+		err := r.db.Raw(`SELECT t.* FROM transactions t JOIN users u ON t.status = true`).Scan(&trx).Error
 		if err != nil {
 			if err == gorm.ErrRecordNotFound {
 				return nil, nil
@@ -213,7 +213,7 @@ func (r *transactionRepository) FindTrxrelationadminByID(User_id uuid.UUID) ([]e
 
 	// key := "FindAllTransactions"
 
-	// data := r.cacheable.Get(key)
+	// data, _ := r.cacheable.Get(key)
 	// // roleadmin := "admin"
 	// if data == "" {
 	// 	if err := r.db.Table("transactions").
@@ -263,7 +263,7 @@ func (r *transactionRepository) FindTrxdetailByID(Transaction_id uuid.UUID) (*en
 	trxsdata := &trx
 	key := "FindtrxdetailByID"
 
-	data := r.cacheable.Get(key)
+	data, _ := r.cacheable.Get(key)
 
 	if data == "" {
 
@@ -294,7 +294,7 @@ func (r *transactionRepository) FindCartByID(Cart_id uuid.UUID) (*entity.Carts, 
 	cartdata := &cart
 	key := "FindEventByID"
 
-	data := r.cacheable.Get(key)
+	data, _ := r.cacheable.Get(key)
 
 	if data == "" {
 
@@ -325,7 +325,7 @@ func (r *transactionRepository) FindUserByID(User_ID uuid.UUID) (*entity.Useracc
 	userdata := &user
 	key := "FindEventByID"
 
-	data := r.cacheable.Get(key)
+	data, _ := r.cacheable.Get(key)
 
 	if data == "" {
 
