@@ -29,8 +29,6 @@ func (h *UserHandler) LoginUser(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
 	}
 
-
-
 	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "login success", user))
 }
 

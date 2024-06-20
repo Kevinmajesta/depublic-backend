@@ -7,12 +7,30 @@ import (
 	"github.com/Kevinmajesta/depublic-backend/pkg/route"
 )
 
-func UserPublicRoutes(userHandler handler.UserHandler) []*route.Route {
+func UserPublicRoutes(userHandler handler.UserHandler, transactionHandler handler.TransactionHandler) []*route.Route {
 	return []*route.Route{
 		{
 			Method:  http.MethodPost,
 			Path:    "/login",
 			Handler: userHandler.LoginUser,
+		},
+
+		{
+			Method:  http.MethodPost,
+			Path:    "transaction/create",
+			Handler: transactionHandler.CreateTransaction,
+		},
+
+		{
+			Method:  http.MethodGet,
+			Path:    "transaction/all",
+			Handler: transactionHandler.FindAllTransaction,
+		},
+
+		{
+			Method:  http.MethodPost,
+			Path:    "transaction/check-pay",
+			Handler: transactionHandler.CheckPayTransaction,
 		},
 	}
 }

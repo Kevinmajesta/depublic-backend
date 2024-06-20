@@ -23,6 +23,9 @@ type Server struct {
 
 func NewServer(serverName string, userPublicRoutes, userPrivateRoutes, adminPublicRoutes, adminPrivateRoutes []*route.Route, secretKey string) *Server {
 	e := echo.New()
+	e.GET("/", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Hello, World!", nil))
+	})
 
 	v1 := e.Group(fmt.Sprintf("/%s/api/v1", serverName))
 
@@ -97,5 +100,3 @@ func JWTProtection(secretKey string, requiredRole string) echo.MiddlewareFunc {
 		},
 	})
 }
-
-
