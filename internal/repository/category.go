@@ -10,18 +10,18 @@ import (
 
 type CategoryRepository interface {
 	// TODO ADD
-	AddCategory(category *entity.EventCategory) (*entity.EventCategory, error)
+	AddCategory(category *entity.EventCategories) (*entity.EventCategories, error)
 	// TODO GET
-	GetAllCategory() ([]entity.EventCategory, error)
-	GetCategoryByID(categoryID uuid.UUID) (*entity.EventCategory, error)
-	GetCategoryByName(categoryName string) (*entity.EventCategory, error)
+	GetAllCategory() ([]entity.EventCategories, error)
+	GetCategoryByID(categoryID uuid.UUID) (*entity.EventCategories, error)
+	GetCategoryByName(categoryName string) (*entity.EventCategories, error)
 	// TODO UPDATE
-	UpdateCategoryByID(category *entity.EventCategory) (*entity.EventCategory, error)
+	UpdateCategoryByID(category *entity.EventCategories) (*entity.EventCategories, error)
 	// TODO DELETE
-	DeleteCategoryByID(categoryID uuid.UUID) (*entity.EventCategory, error)
+	DeleteCategoryByID(categoryID uuid.UUID) (*entity.EventCategories, error)
 	// TODO CHECK
-	CheckCategoryByName(name string) (*entity.EventCategory, error)
-	CheckCategoryById(categoryID string) (*entity.EventCategory, error)
+	CheckCategoryByName(name string) (*entity.EventCategories, error)
+	CheckCategoryById(categoryID string) (*entity.EventCategories, error)
 }
 
 type categoryRepository struct {
@@ -34,7 +34,7 @@ func NewCategoryRepository(db *gorm.DB) CategoryRepository {
 
 // TODO ADD CATEGORY REPOSITORY
 // Repo Add Category
-func (r *categoryRepository) AddCategory(category *entity.EventCategory) (*entity.EventCategory, error) {
+func (r *categoryRepository) AddCategory(category *entity.EventCategories) (*entity.EventCategories, error) {
 	query := r.db
 	if err := query.Create(&category).Error; err != nil {
 		return category, err
@@ -43,8 +43,8 @@ func (r *categoryRepository) AddCategory(category *entity.EventCategory) (*entit
 }
 
 // TODO FIND ALL CATEGORY REPOSITORY
-func (r *categoryRepository) GetAllCategory() ([]entity.EventCategory, error) {
-	var category []entity.EventCategory
+func (r *categoryRepository) GetAllCategory() ([]entity.EventCategories, error) {
+	var category []entity.EventCategories
 	query := r.db
 	if err := query.Find(&category).Error; err != nil {
 		return nil, err
@@ -53,18 +53,18 @@ func (r *categoryRepository) GetAllCategory() ([]entity.EventCategory, error) {
 }
 
 // TODO FIND CATEGORY BY ID
-func (r *categoryRepository) GetCategoryByID(categoryID uuid.UUID) (*entity.EventCategory, error) {
-	var category entity.EventCategory
+func (r *categoryRepository) GetCategoryByID(categoryID uuid.UUID) (*entity.EventCategories, error) {
+	var category entity.EventCategories
 	query := r.db
-	if err := query.Find(&category, "event_categories_id = ?", categoryID).Error; err != nil {
+	if err := query.Find(&category, "event_category_id = ?", categoryID).Error; err != nil {
 		return nil, err
 	}
 	return &category, nil
 }
 
 // TODO GET CATEGORY BY NAME
-// func (r *categoryRepository) GetCategoryByName(categoryName string) (*entity.EventCategory, error) {
-// 	var category entity.EventCategory
+// func (r *categoryRepository) GetCategoryByName(categoryName string) (*entity.EventCategories, error) {
+// 	var category entity.EventCategories
 // query := r.db
 // 	if err := query.Find(&category, "name_categories = ?", categoryName).Error; err != nil {
 // 		return nil, err
@@ -72,8 +72,8 @@ func (r *categoryRepository) GetCategoryByID(categoryID uuid.UUID) (*entity.Even
 // 	return &category, nil
 // }
 
-func (r *categoryRepository) GetCategoryByName(categoryName string) (*entity.EventCategory, error) {
-	var category entity.EventCategory
+func (r *categoryRepository) GetCategoryByName(categoryName string) (*entity.EventCategories, error) {
+	var category entity.EventCategories
 	query := r.db
 	if err := query.Where("name_categories = ?", categoryName).First(&category).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -85,11 +85,11 @@ func (r *categoryRepository) GetCategoryByName(categoryName string) (*entity.Eve
 }
 
 // TODO UPDATE CATEGORY BY ID
-func (r *categoryRepository) UpdateCategoryByID(category *entity.EventCategory) (*entity.EventCategory, error) {
+func (r *categoryRepository) UpdateCategoryByID(category *entity.EventCategories) (*entity.EventCategories, error) {
 	// Find the existing event by ID
-	var existingCategory entity.EventCategory
+	var existingCategory entity.EventCategories
 	query := r.db
-	if err := query.Find(&existingCategory, "event_categories_id = ?", category.EventCategoriesID).Error; err != nil {
+	if err := query.Find(&existingCategory, "event_category_id = ?", category.EventCategoryID).Error; err != nil {
 		return nil, err
 	}
 
@@ -105,11 +105,11 @@ func (r *categoryRepository) UpdateCategoryByID(category *entity.EventCategory) 
 }
 
 // TODO DELETE CATEGORY BY ID
-func (r *categoryRepository) DeleteCategoryByID(categoryID uuid.UUID) (*entity.EventCategory, error) {
-	var category entity.EventCategory
+func (r *categoryRepository) DeleteCategoryByID(categoryID uuid.UUID) (*entity.EventCategories, error) {
+	var category entity.EventCategories
 	query := r.db
 	// Unscoped delete (Hard Delete)
-	if err := query.Where("event_categories_id = ?", categoryID).Unscoped().Delete(&category).Error; err != nil {
+	if err := query.Where("event_category_id = ?", categoryID).Unscoped().Delete(&category).Error; err != nil {
 		return nil, err
 	}
 
@@ -117,8 +117,8 @@ func (r *categoryRepository) DeleteCategoryByID(categoryID uuid.UUID) (*entity.E
 }
 
 // TODO Check Name Category
-func (r *categoryRepository) CheckCategoryByName(categoryName string) (*entity.EventCategory, error) {
-	var category entity.EventCategory
+func (r *categoryRepository) CheckCategoryByName(categoryName string) (*entity.EventCategories, error) {
+	var category entity.EventCategories
 	query := r.db
 	if err := query.Where("name_categories = ?", categoryName).Find(&category).Error; err != nil {
 		// if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -129,8 +129,8 @@ func (r *categoryRepository) CheckCategoryByName(categoryName string) (*entity.E
 	return &category, nil
 }
 
-func (r *categoryRepository) CheckCategoryById(categoryID string) (*entity.EventCategory, error) {
-	var category entity.EventCategory
+func (r *categoryRepository) CheckCategoryById(categoryID string) (*entity.EventCategories, error) {
+	var category entity.EventCategories
 	query := r.db
 	if err := query.Where("id_event_categories = ?", categoryID).Find(&category).Error; err != nil {
 		// if errors.Is(err, gorm.ErrRecordNotFound) {

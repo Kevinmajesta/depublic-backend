@@ -1,27 +1,25 @@
 package entity
 
-import (
-	"github.com/google/uuid"
-)
+import "github.com/google/uuid"
 
-type EventCategory struct {
-	EventCategoriesID uuid.UUID `json:"event_categories_id" gorm:"primaryKey"`
-	NameCategories    string    `json:"name_categories" gorm:"not null"`
+type EventCategories struct {
+	EventCategoryID uuid.UUID `json:"event_categories_id" gorm:"primaryKey"`
+	NameCategories  string    `json:"name_categories" gorm:"not null"`
 	Auditable
 }
 
-func NewCategory(name_categories string) *EventCategory {
-	return &EventCategory{
-		EventCategoriesID: uuid.New(),
-		NameCategories:    name_categories,
-		Auditable:         NewAuditable(),
+func NewCategory(name_categories string) *EventCategories {
+	return &EventCategories{
+		EventCategoryID: uuid.New(),
+		NameCategories:  name_categories,
+		Auditable:       NewAuditable(),
 	}
 }
 
-func UpdateCategory(event_categories_id uuid.UUID, name_categories string) *EventCategory {
-	return &EventCategory{
-		EventCategoriesID: event_categories_id,
-		NameCategories:    name_categories,
-		Auditable:         UpdateAuditable(),
+func UpdateCategory(event_categories_id uuid.UUID, name_categories string) *EventCategories {
+	return &EventCategories{
+		EventCategoryID: event_categories_id,
+		NameCategories:  name_categories,
+		Auditable:       UpdateAuditable(),
 	}
 }

@@ -96,18 +96,18 @@ func (h *EventHandler) AddEvent(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, "Failed to copy image file"))
 	}
 
-	event := &entity.Event{
-		EventID:          uuid.New(),
-		CategoryID:       req.CategoryID,
-		TitleEvent:       req.TitleEvent,
-		DateEvent:        req.DateEvent,
-		PriceEvent:       req.PriceEvent,
-		CityEvent:        req.CityEvent,
-		AddressEvent:     req.AddressEvent,
-		QtyEvent:         req.QtyEvent,
-		DescriptionEvent: req.DescriptionEvent,
-		ImageURL:         "/assets/images/" + imageFilename,
-		Auditable:        entity.NewAuditable(),
+	event := &entity.Events{
+		Event_id:          uuid.New(),
+		Category_id:       req.CategoryID,
+		Title_event:       req.TitleEvent,
+		Date_event:        req.DateEvent,
+		Price_event:       req.PriceEvent,
+		City_event:        req.CityEvent,
+		Address_event:     req.AddressEvent,
+		Qty_event:         req.QtyEvent,
+		Description_event: req.DescriptionEvent,
+		Image_url:         "/assets/images/" + imageFilename,
+		Auditable:         entity.NewAuditable(),
 	}
 
 	createdEvent, err := h.eventService.AddEvent(event)
@@ -247,12 +247,12 @@ func (h *EventHandler) SearchEvents(c echo.Context) error {
 
 // TODO FILTER
 func (h *EventHandler) FilterEvents(c echo.Context) error {
-	var categoryID *uuid.UUID
-	var startDate *string
-	var endDate *string
-	var cityEvent *string
-	var priceMin *int
-	var priceMax *int
+	var categoryID uuid.UUID
+	var startDate string
+	var endDate string
+	var cityEvent string
+	var priceMin int
+	var priceMax int
 
 	// Parse query params
 	if cid := c.QueryParam("category_id"); cid != "" {
@@ -260,44 +260,38 @@ func (h *EventHandler) FilterEvents(c echo.Context) error {
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Invalid category ID"))
 		}
-		categoryID = &id
+		categoryID = id
 	}
 	if sd := c.QueryParam("start_date"); sd != "" {
-		startDate = &sd
+		startDate = sd
 	} else {
-		// dateNow := time.Now().Format("2000-01-01")
-		// startDate = &dateNow
-		defaultStartDate := "2000-01-01"
-		startDate = &defaultStartDate
+		startDate = "2000-01-01"
 	}
 	if ed := c.QueryParam("end_date"); ed != "" {
-		endDate = &ed
+		endDate = ed
 	} else {
-		defaultEndDate := "9999-12-31"
-		endDate = &defaultEndDate
+		endDate = "9999-12-31"
 	}
 	if ce := c.QueryParam("city_event"); ce != "" {
-		cityEvent = &ce
+		cityEvent = ce
 	}
 	if pm := c.QueryParam("price_min"); pm != "" {
 		price, err := strconv.Atoi(pm)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Invalid minimum price"))
 		}
-		priceMin = &price
+		priceMin = price
 	} else {
-		defaultPriceMin := 0
-		priceMin = &defaultPriceMin
+		priceMin = 0
 	}
 	if px := c.QueryParam("price_max"); px != "" {
 		price, err := strconv.Atoi(px)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Invalid maximum price"))
 		}
-		priceMax = &price
+		priceMax = price
 	} else {
-		defaultPriceMax := 999999999
-		priceMax = &defaultPriceMax
+		priceMax = 999999999
 	}
 
 	events, err := h.eventService.FilterEvents(categoryID, startDate, endDate, cityEvent, priceMin, priceMax)
@@ -305,7 +299,7 @@ func (h *EventHandler) FilterEvents(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, err.Error()))
 	}
 
-	if (priceMin != nil || priceMax != nil || startDate != nil || endDate != nil) && len(events) == 0 {
+	if (priceMin != 0 || priceMax != 999999999 || startDate != "2000-01-01" || endDate != "9999-12-31") && len(events) == 0 {
 		return c.JSON(http.StatusNotFound, response.ErrorResponse(http.StatusNotFound, "Event Not Available"))
 	}
 
@@ -313,19 +307,6 @@ func (h *EventHandler) FilterEvents(c echo.Context) error {
 }
 
 // TODO SORT EVENT
-// func (h *EventHandler) SortEvents(c echo.Context) error {
-// 	sortBy := c.QueryParam("sort_by")
-// 	if sortBy == "" {
-// 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sort criteria required"))
-// 	}
-
-// 	events, err := h.eventService.SortEvents(sortBy)
-// 	if err != nil {
-// 		return c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, err.Error()))
-// 	}
-
-// 	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Sort Events Success!", events))
-// }
 
 func (h *EventHandler) SortEvents(c echo.Context) error {
 	sortBy := c.QueryParam("sort_by")

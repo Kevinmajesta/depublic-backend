@@ -5,9 +5,7 @@ import (
 	"github.com/Kevinmajesta/depublic-backend/internal/http/router"
 	"github.com/Kevinmajesta/depublic-backend/internal/repository"
 	"github.com/Kevinmajesta/depublic-backend/internal/service"
-	"github.com/Kevinmajesta/depublic-backend/internal/validator"
 	"github.com/Kevinmajesta/depublic-backend/pkg/route"
-	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
 
@@ -42,21 +40,21 @@ func BuildEventPrivateRoutes() []*route.Route {
 // 	return e
 // }
 
-func SetupEcho(db *gorm.DB) *echo.Echo {
-	e := echo.New()
-	e.Validator = validator.NewValidator()
+// func SetupEcho(db *gorm.DB) *echo.Echo {
+// 	e := echo.New()
+// 	e.Validator = validator.NewValidator()
 
-	eventHandler := handler.NewEventHandler(service.NewEventService(repository.NewEventRepository(db)))
+// 	eventHandler := handler.NewEventHandler(service.NewEventService(repository.NewEventRepository(db)))
 
-	publicRoutes := router.EventPublicRoutes(eventHandler)
-	for _, route := range publicRoutes {
-		e.Add(route.Method, route.Path, route.Handler)
-	}
+// 	publicRoutes := router.EventPublicRoutes(eventHandler)
+// 	for _, route := range publicRoutes {
+// 		e.Add(route.Method, route.Path, route.Handler)
+// 	}
 
-	privateRoutes := router.EventPrivateRoutes()
-	for _, route := range privateRoutes {
-		e.Add(route.Method, route.Path, route.Handler)
-	}
+// 	privateRoutes := router.EventPrivateRoutes()
+// 	for _, route := range privateRoutes {
+// 		e.Add(route.Method, route.Path, route.Handler)
+// 	}
 
-	return e
-}
+// 	return e
+// }

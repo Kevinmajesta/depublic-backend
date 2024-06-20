@@ -6,18 +6,31 @@ import (
 	"github.com/google/uuid"
 )
 
-type Event struct {
-	EventID          uuid.UUID     `json:"event_id" gorm:"type:uuid;primary_key"`
-	CategoryID       uuid.UUID     `json:"category_id"`
-	EventCategories  EventCategory `json:"-" gorm:"foreignkey:category_id"`
-	TitleEvent       string        `json:"title_event"`
-	DateEvent        string        `json:"date_event"`
-	PriceEvent       int           `json:"price_event"`
-	CityEvent        string        `json:"city_event"`
-	AddressEvent     string        `json:"address_event"`
-	QtyEvent         int           `json:"qty_event"`
-	DescriptionEvent string        `json:"description_event"`
-	ImageURL         string        `json:"image_url"`
+// type Events struct {
+// 	Event_id          string `json:"event_id"  gorm:"primarykey"`
+// 	Category_id       string `json:"category_id"`
+// 	Title_event       string `json:"title_event"`
+// 	Date_event        string `json:"date_event"`
+// 	Price_event       string `json:"price_event"`
+// 	City_event        string `json:"city_event"`
+// 	Address_event     string `json:"address_event"`
+// 	Qty_event         string `json:"qty_event"`
+// 	Description_event string `json:"description_event"`
+// 	Image_url         string `json:"image_url"`
+// 	Auditable
+// }
+
+type Events struct {
+	Event_id          uuid.UUID `json:"event_id" gorm:"type:uuid;primary_key"`
+	Category_id       uuid.UUID `json:"category_id"`
+	Title_event       string    `json:"title_event"`
+	Date_event        string    `json:"date_event"`
+	Price_event       int       `json:"price_event"`
+	City_event        string    `json:"city_event"`
+	Address_event     string    `json:"address_event"`
+	Qty_event         int       `json:"qty_event"`
+	Description_event string    `json:"description_event"`
+	Image_url         string    `json:"image_url"`
 	Auditable
 }
 
@@ -31,24 +44,24 @@ func NewEvent(
 	qtyEvent int,
 	descriptionEvent string,
 	imageURL string,
-) *Event {
-	return &Event{
-		EventID:          uuid.New(),
-		CategoryID:       categoryID,
-		TitleEvent:       titleEvent,
-		DateEvent:        dateEvent,
-		PriceEvent:       priceEvent,
-		CityEvent:        cityEvent,
-		AddressEvent:     addressEvent,
-		QtyEvent:         qtyEvent,
-		DescriptionEvent: descriptionEvent,
-		ImageURL:         imageURL,
-		Auditable:        NewAuditable(),
+) *Events {
+	return &Events{
+		Event_id:          uuid.New(),
+		Category_id:       categoryID,
+		Title_event:       titleEvent,
+		Date_event:        dateEvent,
+		Price_event:       priceEvent,
+		City_event:        cityEvent,
+		Address_event:     addressEvent,
+		Qty_event:         qtyEvent,
+		Description_event: descriptionEvent,
+		Image_url:         imageURL,
+		Auditable:         NewAuditable(),
 	}
 }
 
 func UpdateEvent(
-	event *Event,
+	event *Events,
 	categoryID uuid.UUID,
 	titleEvent string,
 	dateEvent time.Time,
@@ -58,17 +71,17 @@ func UpdateEvent(
 	qtyEvent int,
 	descriptionEvent string,
 	imageURL string,
-) *Event {
-	event.CategoryID = categoryID
-	event.TitleEvent = titleEvent
-	event.DateEvent = dateEvent.Format("2000-01-01")
-	event.PriceEvent = priceEvent
-	event.CityEvent = cityEvent
-	event.AddressEvent = addressEvent
-	event.QtyEvent = qtyEvent
-	event.DescriptionEvent = descriptionEvent
+) *Events {
+	event.Category_id = categoryID
+	event.Title_event = titleEvent
+	event.Date_event = dateEvent.Format("2000-01-01")
+	event.Price_event = priceEvent
+	event.City_event = cityEvent
+	event.Address_event = addressEvent
+	event.Qty_event = qtyEvent
+	event.Description_event = descriptionEvent
 	if imageURL != "" {
-		event.ImageURL = imageURL
+		event.Image_url = imageURL
 	}
 	event.Auditable = UpdateAuditable()
 	return event
