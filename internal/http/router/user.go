@@ -19,7 +19,8 @@ var (
 )
 
 func PublicRoutes(userHandler handler.UserHandler,
-	adminHandler handler.AdminHandler, cartHandler handler.CartHandler, wishlistHandler handler.WishlistHandler) []*route.Route {
+	adminHandler handler.AdminHandler, cartHandler handler.CartHandler,
+	wishlistHandler handler.WishlistHandler, notificationHandler handler.NotificationHandler) []*route.Route {
 	return []*route.Route{
 		{
 			Method:  http.MethodPost,
@@ -111,7 +112,8 @@ func PublicRoutes(userHandler handler.UserHandler,
 
 func PrivateRoutes(userHandler handler.UserHandler,
 	adminHandler handler.AdminHandler,
-	transactionHandler handler.TransactionHandler, cartHandler handler.CartHandler, wishlistHandler handler.WishlistHandler) []*route.Route {
+	transactionHandler handler.TransactionHandler, cartHandler handler.CartHandler,
+	wishlistHandler handler.WishlistHandler, notificationHandler handler.NotificationHandler) []*route.Route {
 	return []*route.Route{
 
 		{
@@ -159,18 +161,28 @@ func PrivateRoutes(userHandler handler.UserHandler,
 			Handler: transactionHandler.CreateTransaction,
 			Roles:   allRoles,
 		},
-
 		{
 			Method:  http.MethodGet,
 			Path:    "transaction/all",
 			Handler: transactionHandler.FindAllTransaction,
 			Roles:   onlyAdmin,
 		},
-
 		{
 			Method:  http.MethodPost,
 			Path:    "transaction/check-pay",
 			Handler: transactionHandler.CheckPayTransaction,
+			Roles:   allRoles,
+		},
+		{
+			Method:  http.MethodPost,
+			Path:    "/notification",
+			Handler: notificationHandler.CreateNotification,
+			Roles:   onlyAdmin,
+		},
+		{
+			Method:  http.MethodGet,
+			Path:    "/user/notification",
+			Handler: notificationHandler.GetUserNotifications,
 			Roles:   allRoles,
 		},
 	}

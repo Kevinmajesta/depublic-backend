@@ -30,21 +30,23 @@ type UserService interface {
 }
 
 type userService struct {
-	userRepository repository.UserRepository
-	tokenUseCase   token.TokenUseCase
-	encryptTool    encrypt.EncryptTool
-	emailSender    *email.EmailSender
+	userRepository      repository.UserRepository
+	tokenUseCase        token.TokenUseCase
+	encryptTool         encrypt.EncryptTool
+	emailSender         *email.EmailSender
+	notificationService NotificationService
 }
 
 var InternalError = "internal server error"
 
 func NewUserService(userRepository repository.UserRepository, tokenUseCase token.TokenUseCase,
-	encryptTool encrypt.EncryptTool, emailSender *email.EmailSender) *userService {
+	encryptTool encrypt.EncryptTool, emailSender *email.EmailSender, notificationService NotificationService) *userService {
 	return &userService{
-		userRepository: userRepository,
-		tokenUseCase:   tokenUseCase,
-		encryptTool:    encryptTool,
-		emailSender:    emailSender,
+		userRepository:      userRepository,
+		tokenUseCase:        tokenUseCase,
+		encryptTool:         encryptTool,
+		emailSender:         emailSender,
+		notificationService: notificationService,
 	}
 }
 
@@ -63,7 +65,7 @@ func (s *userService) LoginUser(email string, password string) (string, error) {
 	}
 
 	// Lanjutkan dengan pembuatan token dan logika lainnya
-	expiredTime := time.Now().Local().Add(5 * time.Minute)
+	expiredTime := time.Now().Local().Add(1 * time.Hour)
 
 	user.Phone, _ = s.encryptTool.Decrypt(user.Phone)
 
@@ -125,6 +127,17 @@ func (s *userService) CreateUser(user *entity.User) (*entity.User, error) {
 		return nil, err
 	}
 
+	notification := &entity.Notification{
+		UserID:  newUser.UserId,
+		Type:    "Registration",
+		Message: "User registration successful",
+		IsRead:  false,
+	}
+	err = s.notificationService.CreateNotification(notification)
+	if err != nil {
+		return nil, err
+	}
+
 	return newUser, nil
 }
 
@@ -148,6 +161,23 @@ func (s *userService) UpdateUser(user *entity.User) (*entity.User, error) {
 		}
 		user.Password = string(hashedPassword)
 	}
+
+	updatedUser, err := s.userRepository.UpdateUser(user)
+	if err != nil {
+		return nil, err
+	}
+
+	notification := &entity.Notification{
+		UserID:  updatedUser.UserId,
+		Type:    "Update Profile",
+		Message: "Update Profile successful",
+		IsRead:  false,
+	}
+	err = s.notificationService.CreateNotification(notification)
+	if err != nil {
+		return nil, err
+	}
+
 	return s.userRepository.UpdateUser(user)
 }
 

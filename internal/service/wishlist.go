@@ -15,11 +15,12 @@ type WishlistService interface {
 }
 
 type wishlistService struct {
-	wishlistRepository repository.WishlistRepository
+	wishlistRepository  repository.WishlistRepository
+	notificationService NotificationService
 }
 
-func NewWishlistService(wishlistRepository repository.WishlistRepository) WishlistService {
-	return &wishlistService{wishlistRepository: wishlistRepository}
+func NewWishlistService(wishlistRepository repository.WishlistRepository, notificationService NotificationService) WishlistService {
+	return &wishlistService{wishlistRepository: wishlistRepository, notificationService: notificationService}
 }
 
 func (s *wishlistService) GetAllWishlist() ([]entity.Wishlist, error) {
@@ -41,6 +42,16 @@ func (s *wishlistService) AddWishlist(wishlist *entity.Wishlist) (*entity.Wishli
 		return nil, errors.New("event already added to wishlist")
 	}
 
+	notification := &entity.Notification{
+		UserID:  wishlist.UserId,
+		Type:    "Add To Whislist",
+		Message: "Add To Whislist successful for event " + wishlist.EventId.String(),
+		IsRead:  false,
+	}
+	err = s.notificationService.CreateNotification(notification)
+	if err != nil {
+		return nil, err
+	}
 	// Jika belum ada, tambahkan ke wishlist
 	return s.wishlistRepository.AddWishlist(wishlist)
 }

@@ -20,12 +20,13 @@ type CartService interface {
 }
 
 type cartService struct {
-	cartRepository repository.CartRepository
-	repo           repository.EventRepository
+	cartRepository      repository.CartRepository
+	repo                repository.EventRepository
+	notificationService NotificationService
 }
 
-func NewCartService(cartRepository repository.CartRepository, repo repository.EventRepository) CartService {
-	return &cartService{cartRepository: cartRepository, repo: repo}
+func NewCartService(cartRepository repository.CartRepository, repo repository.EventRepository, notificationService NotificationService) CartService {
+	return &cartService{cartRepository: cartRepository, repo: repo, notificationService: notificationService}
 }
 
 func (s *cartService) GetAllCart() ([]entity.Carts, error) {
@@ -124,6 +125,22 @@ func (s *cartService) AddToCart(UserId, EventId uuid.UUID) (*entity.Carts, error
 
 	// Decrease the stock in the events table
 	err = s.repo.DecreaseEventStock(EventId, 1)
+	if err != nil {
+		return nil, err
+	}
+
+	userID, err := uuid.Parse(cart.User_id)
+	if err != nil {
+		return nil, err
+	}
+
+	notification := &entity.Notification{
+		UserID:  userID,
+		Type:    "Add To Cart",
+		Message: "Add To Cart successful for event " + cart.Event_id,
+		IsRead:  false,
+	}
+	err = s.notificationService.CreateNotification(notification)
 	if err != nil {
 		return nil, err
 	}

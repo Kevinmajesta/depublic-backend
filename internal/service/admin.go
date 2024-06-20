@@ -24,19 +24,21 @@ type AdminService interface {
 }
 
 type adminService struct {
-	adminRepository repository.AdminRepository
-	tokenUseCase    token.TokenUseCase
-	encryptTool     encrypt.EncryptTool
-	emailSender     *email.EmailSender
+	adminRepository     repository.AdminRepository
+	tokenUseCase        token.TokenUseCase
+	encryptTool         encrypt.EncryptTool
+	emailSender         *email.EmailSender
+	notificationService NotificationService
 }
 
 func NewAdminService(adminRepository repository.AdminRepository, tokenUseCase token.TokenUseCase,
-	encryptTool encrypt.EncryptTool, emailSender *email.EmailSender) *adminService {
+	encryptTool encrypt.EncryptTool, emailSender *email.EmailSender, notificationService NotificationService) *adminService {
 	return &adminService{
-		adminRepository: adminRepository,
-		tokenUseCase:    tokenUseCase,
-		encryptTool:     encryptTool,
-		emailSender:     emailSender,
+		adminRepository:     adminRepository,
+		tokenUseCase:        tokenUseCase,
+		encryptTool:         encryptTool,
+		emailSender:         emailSender,
+		notificationService: notificationService,
 	}
 }
 
@@ -54,7 +56,7 @@ func (s *adminService) LoginAdmin(email string, password string) (string, error)
 	}
 
 	// Lanjutkan dengan pembuatan token dan logika lainnya
-	expiredTime := time.Now().Local().Add(5 * time.Minute)
+	expiredTime := time.Now().Local().Add(1 * time.Hour)
 
 	claims := token.JwtCustomClaims{
 		ID:    admin.User_ID.String(),
@@ -123,6 +125,17 @@ func (s *adminService) CreateAdmin(admin *entity.Admin) (*entity.Admin, error) {
 		return nil, err
 	}
 
+	notification := &entity.Notification{
+		UserID:  newAdmin.User_ID,
+		Type:    "Registration",
+		Message: "Admin registration successful",
+		IsRead:  false,
+	}
+	err = s.notificationService.CreateNotification(notification)
+	if err != nil {
+		return nil, err
+	}
+
 	return newAdmin, nil
 }
 
@@ -142,6 +155,22 @@ func (s *adminService) UpdateAdmin(admin *entity.Admin) (*entity.Admin, error) {
 	}
 	if admin.Phone != "" {
 		admin.Phone, _ = s.encryptTool.Encrypt(admin.Phone)
+	}
+
+	updatedAdmin, err := s.adminRepository.UpdateAdmin(admin)
+	if err != nil {
+		return nil, err
+	}
+
+	notification := &entity.Notification{
+		UserID:  updatedAdmin.User_ID,
+		Type:    "Update Profile",
+		Message: "Update Profile successful",
+		IsRead:  false,
+	}
+	err = s.notificationService.CreateNotification(notification)
+	if err != nil {
+		return nil, err
 	}
 	return s.adminRepository.UpdateAdmin(admin)
 }
