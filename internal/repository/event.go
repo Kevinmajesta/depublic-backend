@@ -256,7 +256,8 @@ func (r *eventRepository) SortEvents(sortBy string) ([]entity.Events, error) {
 	case "termurah":
 		query = query.Order("price_event ASC")
 	case "terdekat":
-		query = query.Order("date_event ASC").Where("date_event >= ?", time.Now().Format("200-01-01"))
+
+		query = query.Order("date_event ASC").Where("date_event >= ?", time.Now().Local().Format("0006-06-06"))
 	default:
 		// Default sorting if sort_by is not recognized
 		query = query.Order("date_event DESC")
