@@ -9,6 +9,7 @@ import (
 
 type NotificationService interface {
 	GetUserNotifications(userID uuid.UUID) ([]*entity.Notification, error)
+	GetUserNotificationsNoRead(userID uuid.UUID) ([]*entity.Notification, error)
 	CreateNotification(notification *entity.Notification) error
 	MarkNotificationAsRead(notificationID uuid.UUID) error
 }
@@ -16,13 +17,20 @@ type NotificationService interface {
 type notificationService struct {
 	notificationRepo repository.NotificationRepository
 	tokenUseCase     token.TokenUseCase
+	userRepository   repository.UserRepository
 }
 
-func NewNotificationService(notificationRepo repository.NotificationRepository, tokenUseCase token.TokenUseCase) NotificationService {
+func NewNotificationService(notificationRepo repository.NotificationRepository, tokenUseCase token.TokenUseCase,
+	userRepository repository.UserRepository) NotificationService {
 	return &notificationService{
 		notificationRepo: notificationRepo,
 		tokenUseCase:     tokenUseCase,
+		userRepository:   userRepository,
 	}
+}
+
+func (s *notificationService) GetUserNotificationsNoRead(userID uuid.UUID) ([]*entity.Notification, error) {
+	return s.notificationRepo.GetUserNotificationsNoRead(userID)
 }
 
 func (s *notificationService) GetUserNotifications(userID uuid.UUID) ([]*entity.Notification, error) {
@@ -30,7 +38,22 @@ func (s *notificationService) GetUserNotifications(userID uuid.UUID) ([]*entity.
 }
 
 func (s *notificationService) CreateNotification(notification *entity.Notification) error {
-	return s.notificationRepo.CreateNotification(notification)
+	userIds, err := s.userRepository.GetAllUserIds()
+	if err != nil {
+		return err
+	}
+	
+
+	for _, userID := range userIds {
+		// Buat salinan notifikasi untuk setiap pengguna
+		userNotification := *notification
+		userNotification.UserID = userID
+		if err := s.notificationRepo.CreateNotification(&userNotification); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (s *notificationService) MarkNotificationAsRead(notificationID uuid.UUID) error {

@@ -388,5 +388,24 @@ func PrivateRoutes(userHandler handler.UserHandler,
 			Handler: categoryHandler.DeleteCategoryByID,
 			Roles:   onlyAdmin,
 		},
+		//notif
+		{
+			Method:  http.MethodPost,
+			Path:    "/notification",
+			Handler: notificationHandler.CreateNotification,
+			Roles:   onlyAdmin,
+		},
+		{
+			Method:  http.MethodGet,
+			Path:    "/user/notification/all",
+			Handler: notificationHandler.GetUserNotifications,
+			Roles:   allRoles,
+		},
+		{
+			Method:  http.MethodGet,
+			Path:    "/user/notification",
+			Handler: notificationHandler.GetUserNotificationNoRead,
+			Roles:   allRoles,
+		},
 	}
 }

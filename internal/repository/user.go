@@ -27,6 +27,7 @@ type UserRepository interface {
 	FindCartByUserId(UserId uuid.UUID) (int, error)
 	GetEventInCart(UserId uuid.UUID) ([]int, error)
 	GetEventName(EventId uuid.UUID) (string, error)
+	GetAllUserIds() ([]uuid.UUID, error)
 	UpdateUserJwtToken(userID uuid.UUID, token string, expiresAt time.Time) error
 }
 
@@ -221,4 +222,13 @@ func (u *userRepository) UpdateUserJwtToken(userID uuid.UUID, token string, expi
 	}
 
 	return nil
+}
+
+func (r *userRepository) GetAllUserIds() ([]uuid.UUID, error) {
+	var userIds []uuid.UUID
+	result := r.db.Table("users").Pluck("user_id", &userIds)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return userIds, nil
 }

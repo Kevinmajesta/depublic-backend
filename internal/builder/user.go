@@ -22,12 +22,12 @@ func BuildPublicRoutes(db *gorm.DB, redisDB *redis.Client, tokenUseCase token.To
 	entityCfg *entity.Config) []*route.Route {
 	cacheable := cache.NewCacheable(redisDB)
 	emailService := email.NewEmailSender(entityCfg)
+	userRepository := repository.NewUserRepository(db, nil)
 
 	notificationRepository := repository.NewNotificationRepository(db, cacheable)
-	notificationService := service.NewNotificationService(notificationRepository, tokenUseCase)
+	notificationService := service.NewNotificationService(notificationRepository, tokenUseCase, userRepository)
 	notificationHandler := handler.NewNotificationHandler(notificationService)
 
-	userRepository := repository.NewUserRepository(db, nil)
 	userService := service.NewUserService(userRepository, tokenUseCase, encryptTool, emailService, notificationService)
 	userHandler := handler.NewUserHandler(userService)
 
@@ -58,12 +58,12 @@ func BuildPublicRoutes(db *gorm.DB, redisDB *redis.Client, tokenUseCase token.To
 
 func BuildPrivateRoutes(db *gorm.DB, redisDB *redis.Client, encryptTool encrypt.EncryptTool, entityCfg *entity.Config) []*route.Route {
 	cacheable := cache.NewCacheable(redisDB)
+	userRepository := repository.NewUserRepository(db, cacheable)
 
 	notificationRepository := repository.NewNotificationRepository(db, cacheable)
-	notificationService := service.NewNotificationService(notificationRepository, nil)
+	notificationService := service.NewNotificationService(notificationRepository, nil, userRepository)
 	notificationHandler := handler.NewNotificationHandler(notificationService)
 
-	userRepository := repository.NewUserRepository(db, cacheable)
 	userService := service.NewUserService(userRepository, nil, encryptTool, nil, notificationService)
 	userHandler := handler.NewUserHandler(userService)
 
