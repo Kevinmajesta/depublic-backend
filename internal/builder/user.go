@@ -11,6 +11,9 @@ import (
 	"github.com/Kevinmajesta/depublic-backend/pkg/encrypt"
 	"github.com/Kevinmajesta/depublic-backend/pkg/route"
 	"github.com/Kevinmajesta/depublic-backend/pkg/token"
+
+	// "github.com/labstack/echo/"
+
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
@@ -36,13 +39,21 @@ func BuildPublicRoutes(db *gorm.DB, redisDB *redis.Client, tokenUseCase token.To
 	wishlistService := service.NewWishlistService(wishlistRepository, notificationService)
 	wishlistHandler := handler.NewWishlistHandler(wishlistService)
 
+	//Event
 	eventRepository := repository.NewEventRepository(db)
+	eventService := service.NewEventService(eventRepository)
+	eventHandler := handler.NewEventHandler(eventService)
 
 	cartRepository := repository.NewCartRepository(db, cacheable)
 	cartService := service.NewCartService(cartRepository, eventRepository, notificationService)
 	cartHandler := handler.NewCartHandler(cartService)
 
-	return router.PublicRoutes(userHandler, adminHandler, cartHandler, wishlistHandler, notificationHandler)
+	// Category
+	categoryRepository := repository.NewCategoryRepository(db, cacheable)
+	categoryService := service.NewCategoryService(categoryRepository)
+	categoryHandler := handler.NewCategoryHandler(categoryService)
+
+	return router.PublicRoutes(userHandler, adminHandler, cartHandler, wishlistHandler, notificationHandler, eventHandler, categoryHandler)
 }
 
 func BuildPrivateRoutes(db *gorm.DB, redisDB *redis.Client, encryptTool encrypt.EncryptTool, entityCfg *entity.Config) []*route.Route {
@@ -65,6 +76,8 @@ func BuildPrivateRoutes(db *gorm.DB, redisDB *redis.Client, encryptTool encrypt.
 	wishlistHandler := handler.NewWishlistHandler(wishlistService)
 
 	eventRepository := repository.NewEventRepository(db)
+	eventService := service.NewEventService(eventRepository)
+	eventHandler := handler.NewEventHandler(eventService)
 
 	cartRepository := repository.NewCartRepository(db, cacheable)
 	cartService := service.NewCartService(cartRepository, eventRepository, notificationService)
@@ -74,5 +87,28 @@ func BuildPrivateRoutes(db *gorm.DB, redisDB *redis.Client, encryptTool encrypt.
 	transactionService := service.NewTransactionService(transactionRepository)
 	transactionHandler := handler.NewTransactionHandler(transactionService)
 
-	return router.PrivateRoutes(userHandler, adminHandler, transactionHandler, cartHandler, wishlistHandler, notificationHandler)
+	categoryRepository := repository.NewCategoryRepository(db, cacheable)
+	categoryService := service.NewCategoryService(categoryRepository)
+	categoryHandler := handler.NewCategoryHandler(categoryService)
+
+	return router.PrivateRoutes(userHandler, adminHandler, transactionHandler, cartHandler, wishlistHandler, notificationHandler, eventHandler, categoryHandler)
 }
+
+// func SetupEcho(db *gorm.DB) *echo.Echo {
+// 	e := echo.New()
+// 	e.Validator = validator.NewValidator()
+
+// 	eventHandler := handler.NewEventHandler(service.NewEventService(repository.NewEventRepository(db)))
+
+// 	publicRoutes := router.EventPublicRoutes(eventHandler)
+// 	for _, route := range publicRoutes {
+// 		e.Add(route.Method, route.Path, route.Handler)
+// 	}
+
+// 	privateRoutes := router.EventPrivateRoutes()
+// 	for _, route := range privateRoutes {
+// 		e.Add(route.Method, route.Path, route.Handler)
+// 	}
+
+// 	return e
+// }

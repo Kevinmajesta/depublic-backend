@@ -20,7 +20,7 @@ var (
 
 func PublicRoutes(userHandler handler.UserHandler,
 	adminHandler handler.AdminHandler, cartHandler handler.CartHandler,
-	wishlistHandler handler.WishlistHandler, notificationHandler handler.NotificationHandler) []*route.Route {
+	wishlistHandler handler.WishlistHandler, notificationHandler handler.NotificationHandler, eventHandler handler.EventHandler, categoryHandler handler.CategoryHandler) []*route.Route {
 	return []*route.Route{
 		{
 			Method:  http.MethodPost,
@@ -107,13 +107,107 @@ func PublicRoutes(userHandler handler.UserHandler,
 			Path:    "/cart/:id",
 			Handler: cartHandler.RemoveCart,
 		},
+
+		// TODO EVENT
+		{
+			Method:  http.MethodPost,
+			Path:    "/event",
+			Handler: eventHandler.AddEvent,
+			Roles:   onlyAdmin,
+		},
+		{
+			Method:  http.MethodGet,
+			Path:    "/event",
+			Handler: eventHandler.GetAllEvent,
+			Roles:   allRoles,
+		},
+		{
+			Method:  http.MethodGet,
+			Path:    "/event/",
+			Handler: eventHandler.SearchEvents,
+			Roles:   allRoles,
+		},
+		{
+			Method:  http.MethodGet,
+			Path:    "/event/filter/",
+			Handler: eventHandler.FilterEvents,
+			Roles:   allRoles,
+		},
+		{
+			Method:  http.MethodGet,
+			Path:    "/event/sort/",
+			Handler: eventHandler.SortEvents,
+			Roles:   allRoles,
+		},
+		{
+			Method:  http.MethodGet,
+			Path:    "/event/:id",
+			Handler: eventHandler.GetEventByID,
+			Roles:   allRoles,
+		},
+		{
+			Method:  http.MethodPut,
+			Path:    "/event/:id",
+			Handler: eventHandler.UpdateEvent,
+			Roles:   onlyAdmin,
+		},
+		{
+			Method:  http.MethodDelete,
+			Path:    "/event/:id",
+			Handler: eventHandler.DeleteEventByID,
+			Roles:   onlyAdmin,
+		},
+
+		// TODO CATEGORY
+		// TODO ROUTE GET
+		{
+			Method:  http.MethodGet,
+			Path:    "/category",
+			Handler: categoryHandler.GetAllCategory,
+			Roles:   allRoles,
+		},
+		// By ID
+		{
+			Method:  http.MethodGet,
+			Path:    "/category/:id",
+			Handler: categoryHandler.GetCategoryByID,
+			Roles:   onlyAdmin,
+		},
+		// By Param
+		{
+			Method:  http.MethodGet,
+			Path:    "/category/",
+			Handler: categoryHandler.GetCategoryByParam,
+			Roles:   allRoles,
+		},
+		// TODO ROUTE POST
+		{
+			Method:  http.MethodPost,
+			Path:    "/category",
+			Handler: categoryHandler.AddCategory,
+			Roles:   onlyAdmin,
+		},
+		// TODO ROUTE PUT
+		{
+			Method:  http.MethodPut,
+			Path:    "/category/:id",
+			Handler: categoryHandler.UpdateCategoryByID,
+			Roles:   onlyAdmin,
+		},
+		// TODO ROUTE DELETE
+		{
+			Method:  http.MethodDelete,
+			Path:    "/category/:id",
+			Handler: categoryHandler.DeleteCategoryByID,
+			Roles:   onlyAdmin,
+		},
 	}
 }
 
 func PrivateRoutes(userHandler handler.UserHandler,
 	adminHandler handler.AdminHandler,
 	transactionHandler handler.TransactionHandler, cartHandler handler.CartHandler,
-	wishlistHandler handler.WishlistHandler, notificationHandler handler.NotificationHandler) []*route.Route {
+	wishlistHandler handler.WishlistHandler, notificationHandler handler.NotificationHandler, eventHandler handler.EventHandler, categoryHandler handler.CategoryHandler) []*route.Route {
 	return []*route.Route{
 
 		{
@@ -184,6 +278,108 @@ func PrivateRoutes(userHandler handler.UserHandler,
 			Path:    "/user/notification",
 			Handler: notificationHandler.GetUserNotifications,
 			Roles:   allRoles,
+		},
+
+		// TODO EVENT
+		// Create
+		{
+			Method:  http.MethodPost,
+			Path:    "/event",
+			Handler: eventHandler.AddEvent,
+			Roles:   onlyAdmin,
+		},
+		// Get All
+		{
+			Method:  http.MethodGet,
+			Path:    "/event",
+			Handler: eventHandler.GetAllEvent,
+			Roles:   allRoles,
+		},
+		// Search
+		{
+			Method:  http.MethodGet,
+			Path:    "/event/",
+			Handler: eventHandler.SearchEvents,
+			Roles:   allRoles,
+		},
+		// Filter
+		{
+			Method:  http.MethodGet,
+			Path:    "/event/filter/",
+			Handler: eventHandler.FilterEvents,
+			Roles:   allRoles,
+		},
+		// Sort
+		{
+			Method:  http.MethodGet,
+			Path:    "/event/sort/",
+			Handler: eventHandler.SortEvents,
+			Roles:   allRoles,
+		},
+		// By ID
+		{
+			Method:  http.MethodGet,
+			Path:    "/event/:id",
+			Handler: eventHandler.GetEventByID,
+			Roles:   allRoles,
+		},
+		// Update
+		{
+			Method:  http.MethodPut,
+			Path:    "/event/:id",
+			Handler: eventHandler.UpdateEvent,
+			Roles:   onlyAdmin,
+		},
+		// Delete
+		{
+			Method:  http.MethodDelete,
+			Path:    "/event/:id",
+			Handler: eventHandler.DeleteEventByID,
+			Roles:   onlyAdmin,
+		},
+
+		// TODO CATEGORY
+		// TODO ROUTE GET
+		{
+			Method:  http.MethodGet,
+			Path:    "/category",
+			Handler: categoryHandler.GetAllCategory,
+			Roles:   allRoles,
+		},
+		// By ID
+		{
+			Method:  http.MethodGet,
+			Path:    "/category/:id",
+			Handler: categoryHandler.GetCategoryByID,
+			Roles:   allRoles,
+		},
+		// By Param
+		{
+			Method:  http.MethodGet,
+			Path:    "/category/",
+			Handler: categoryHandler.GetCategoryByParam,
+			Roles:   allRoles,
+		},
+		// TODO ROUTE POST
+		{
+			Method:  http.MethodPost,
+			Path:    "/category",
+			Handler: categoryHandler.AddCategory,
+			Roles:   onlyAdmin,
+		},
+		// TODO ROUTE PUT
+		{
+			Method:  http.MethodPut,
+			Path:    "/category/:id",
+			Handler: categoryHandler.UpdateCategoryByID,
+			Roles:   onlyAdmin,
+		},
+		// TODO ROUTE DELETE
+		{
+			Method:  http.MethodDelete,
+			Path:    "/category/:id",
+			Handler: categoryHandler.DeleteCategoryByID,
+			Roles:   onlyAdmin,
 		},
 	}
 }
