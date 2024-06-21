@@ -267,6 +267,13 @@ func PrivateRoutes(userHandler handler.UserHandler,
 			Handler: transactionHandler.CheckPayTransaction,
 			Roles:   allRoles,
 		},
+
+		// {
+		// 	Method:  http.MethodPost,
+		// 	Path:    "transaction/pay-cancel",
+		// 	Handler: transactionHandler.CancelPayTransaction,
+		// 	Roles:   allRoles,
+		// },
 		{
 			Method:  http.MethodPost,
 			Path:    "/notification",
