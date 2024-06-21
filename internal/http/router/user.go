@@ -262,7 +262,7 @@ func PrivateRoutes(userHandler handler.UserHandler,
 			Method:  http.MethodGet,
 			Path:    "transaction/all",
 			Handler: transactionHandler.FindAllTransaction,
-			Roles:   onlyAdmin,
+			Roles:   allRoles,
 		},
 		{
 			Method:  http.MethodPost,
