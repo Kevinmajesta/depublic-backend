@@ -263,6 +263,7 @@ func (r *eventRepository) SortEvents(sortBy string) ([]entity.Events, error) {
 	case "terdekat":
 
 		query = query.Order("date_event ASC").Where("date_event >= ?", time.Now().In(wib).Format("2006-01-02"))
+
 	default:
 		// Default sorting if sort_by is not recognized
 		query = query.Order("date_event DESC")

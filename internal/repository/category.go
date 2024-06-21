@@ -62,7 +62,7 @@ func (r *categoryRepository) GetAllCategory() ([]entity.EventCategories, error) 
 func (r *categoryRepository) GetCategoryByID(categoryID uuid.UUID) (*entity.EventCategories, error) {
 	var category entity.EventCategories
 	query := r.db
-	if err := query.Find(&category, "event_category_id = ?", categoryID).Error; err != nil {
+	if err := query.Find(&category, "event_categories_id = ?", categoryID).Error; err != nil {
 		return nil, err
 	}
 	return &category, nil
@@ -95,7 +95,7 @@ func (r *categoryRepository) UpdateCategoryByID(category *entity.EventCategories
 	// Find the existing event by ID
 	var existingCategory entity.EventCategories
 	query := r.db
-	if err := query.Find(&existingCategory, "event_category_id = ?", category.EventCategoryID).Error; err != nil {
+	if err := query.Find(&existingCategory, "event_categories_id = ?", category.EventCategoriesID).Error; err != nil {
 		return nil, err
 	}
 
@@ -115,7 +115,7 @@ func (r *categoryRepository) DeleteCategoryByID(categoryID uuid.UUID) (*entity.E
 	var category entity.EventCategories
 	query := r.db
 	// Unscoped delete (Hard Delete)
-	if err := query.Where("event_category_id = ?", categoryID).Unscoped().Delete(&category).Error; err != nil {
+	if err := query.Where("event_categories_id = ?", categoryID).Unscoped().Delete(&category).Error; err != nil {
 		return nil, err
 	}
 
