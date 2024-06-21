@@ -44,7 +44,7 @@ func (r *cartRepository) GetAllCart() ([]entity.Carts, error) {
 			return carts, err
 		}
 		marshalledCarts, _ := json.Marshal(carts)
-		err := r.cacheable.Set(key, marshalledCarts, 5*time.Minute)
+		err := r.cacheable.Set(key, marshalledCarts, 1*time.Minute)
 		if err != nil {
 			return carts, err
 		}
@@ -62,21 +62,20 @@ func (r *cartRepository) GetAllCart() ([]entity.Carts, error) {
 func (r *cartRepository) FindCartById(CartId uuid.UUID) (*entity.Carts, error) {
 	cart := &entity.Carts{}
 
-	if err := r.db.First(cart, "cart_id = ?", CartId).Error; err != nil {
-		return nil, err
+	if err := r.db.Where("cart_id = ?", CartId).Take(cart).Error; err != nil {
+		return cart, err
 	}
 
 	return cart, nil
 }
 
 func (r *cartRepository) GetCartByUserId(UserId uuid.UUID) (*entity.Carts, error) {
-	user := &entity.Carts{}
+	cart := new(entity.Carts)
 
-	if err := r.db.Select("event_id, qty, ticket_date, price").First(user, "user_id = ?", UserId).Error; err != nil {
-		return nil, err
+	if err := r.db.Where("user_id = ?", UserId).Take(cart).Error; err != nil {
+		return cart, err
 	}
-
-	return user, nil
+	return cart, nil
 }
 
 func (r *cartRepository) GetCartByUserAndEvent(UserId, EventId uuid.UUID) (*entity.Carts, error) {

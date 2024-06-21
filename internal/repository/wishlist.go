@@ -15,7 +15,7 @@ type WishlistRepository interface {
 	GetWishlistByEventAndUser(EventId, UserId uuid.UUID) (*entity.Wishlist, error)
 	RemoveWishlist(EventId, UserId uuid.UUID) error
 	GetAllWishlist() ([]entity.Wishlist, error)
-	// CheckIfTheItemIsPresentAtWishlist(user_id, event_id uuid.UUID) (bool, error)
+	FindWishlistByUserId(UserId uuid.UUID) (*entity.Wishlist, error)
 }
 
 type wishlistRepository struct {
@@ -78,5 +78,14 @@ func (r *wishlistRepository) GetAllWishlist() ([]entity.Wishlist, error) {
 		}
 	}
 
+	return wishlists, nil
+}
+
+func (r *wishlistRepository) FindWishlistByUserId(UserId uuid.UUID) (*entity.Wishlist, error) {
+	wishlists := new(entity.Wishlist)
+
+	if err := r.db.Raw("SELECT * FROM wishlists WHERE user_id = ?", UserId).Take(wishlists).Error; err != nil {
+		return wishlists, err
+	}
 	return wishlists, nil
 }

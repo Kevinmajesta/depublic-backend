@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"time"
 
 	"github.com/Kevinmajesta/depublic-backend/internal/entity"
@@ -9,7 +10,7 @@ import (
 )
 
 type EventRepository interface {
-	CheckEvent(EventId uuid.UUID) error
+	CheckEvent(EventId uuid.UUID) (*entity.Events, error)
 	CheckQtyEvent(EventId uuid.UUID) (int, error)
 	CheckPriceEvent(EventId uuid.UUID) (int, error)
 	IncreaseEventStock(EventId uuid.UUID, qty int) error
@@ -47,14 +48,14 @@ func NewEventRepository(db *gorm.DB) EventRepository {
 	return &eventRepository{db: db}
 }
 
-func (r *eventRepository) CheckEvent(EventId uuid.UUID) error {
-	if err := r.db.Find("events").Error; err != nil {
-		return err
+func (r *eventRepository) CheckEvent(EventId uuid.UUID) (*entity.Events, error) {
+	var event entity.Events
+	if err := r.db.Raw("SELECT * FROM events WHERE event_id = ?", EventId).First(&event).Error; err != nil {
+		return nil, errors.New("events does not exist")
 	}
 
-	return nil
+	return &event, nil
 }
-
 func (r *eventRepository) CheckQtyEvent(EventId uuid.UUID) (int, error) {
 	var qty int
 
