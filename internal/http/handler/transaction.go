@@ -85,7 +85,7 @@ func (h *TransactionHandler) CreateTransaction(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
 	}
 
-	if eventdata.Event_id == "" {
+	if eventdata.Event_id.String() == "" {
 		return c.JSON(http.StatusFound, response.ErrorResponse(http.StatusFound, "Sorry! We found Event no data"))
 	}
 
@@ -106,17 +106,12 @@ func (h *TransactionHandler) CreateTransaction(c echo.Context) error {
 		qtytrx := cartdata.Qty
 		pricetrx := eventdata.Price_event
 
-		amount1, err := strconv.Atoi(pricetrx)
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sorry! We failed to convert"))
-		}
-
 		amount2, err := strconv.Atoi(qtytrx)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sorry! We failed to convert"))
 		}
 
-		amount := float64(amount1 * amount2)
+		amount := float64(pricetrx * amount2)
 		ppn := calculatePPN(amount, 11)
 		amounttotal := int((amount + ppn))
 
@@ -212,17 +207,12 @@ func (h *TransactionHandler) CreateTransaction(c echo.Context) error {
 		qtyevent := cartdata.Qty
 		priceevent := eventdata.Price_event
 
-		event1, err := strconv.Atoi(priceevent)
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sorry! We failed to convert"))
-		}
-
 		event2, err := strconv.Atoi(qtyevent)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sorry! We failed to convert"))
 		}
 
-		price := event1 * event2
+		price := priceevent * event2
 		pricefinal := strconv.Itoa(price)
 
 		trx_iddetail := uuid.New().String()
@@ -375,13 +365,13 @@ func (h *TransactionHandler) CheckPayTransaction(c echo.Context) error {
 				return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
 			}
 
-			if eventdata.Event_id == "" {
+			if eventdata.Event_id.String() == "" {
 				return c.JSON(http.StatusFound, response.ErrorResponse(http.StatusFound, "Sorry! We found Event no data"))
 			}
 
 			ticket_id := uuid.New().String()
 			codeqr := uuid.New().String()
-			NewTicketdata := entity.NewTicket(ticket_id, transaction.Transactions_id, eventdata.Event_id, codeqr, eventdata.Title_event, transactiondetail.Qty_event)
+			NewTicketdata := entity.NewTicket(ticket_id, transaction.Transactions_id, eventdata.Event_id.String(), codeqr, eventdata.Title_event, transactiondetail.Qty_event)
 
 			ticketdata, err := h.transactionService.CreateTicket(NewTicketdata)
 			if err != nil {
