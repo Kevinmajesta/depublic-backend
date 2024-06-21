@@ -45,10 +45,9 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 	// Optionally, you could return the error to give each route more control over the status code
 }
 
-type Person struct {
-	Cart_id string `json:"cart_id"`
-	User_id int    `json:"user_id"`
-	// City string `json:"city"`
+func isValidUUID(u string) bool {
+	_, err := uuid.Parse(u)
+	return err == nil
 }
 
 func NewTransactionHandler(transactionService service.TransactionService) TransactionHandler {
@@ -273,129 +272,135 @@ func (h *TransactionHandler) CheckPayTransaction(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sorry! Colum empty"))
 	}
 
-	transactions_id := uuid.MustParse(input.Transactions_id)
+	if isValidUUID(input.Transactions_id) {
 
-	transaction, err := h.transactionService.FindTrxByID(transactions_id)
+		transactions_id := uuid.MustParse(input.Transactions_id)
 
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
-	}
-	if transaction.Transactions_id == "" {
-		return c.JSON(http.StatusFound, response.ErrorResponse(http.StatusFound, "Sorry! We found User no data"))
-	}
-	// transactions_id_checkpay := uuid.MustParse(input.Transactions_id)
-	transactions_id_checkpay := transactions_id.String()
-
-	url := "https://api.sandbox.midtrans.com/v2/" + transactions_id_checkpay + "/status"
-	// "enabled_payments": ["bca_va"],
-	data := map[string]interface{}{}
-
-	// Mengubah data menjadi format JSON
-	payload, err := json.Marshal(data)
-	if err != nil {
-		log.Fatalf("Failed to marshal JSON: %v", err)
-	}
-
-	// Membuat request HTTP POST
-	req, err := http.NewRequest("GET", url, bytes.NewBuffer(payload))
-	if err != nil {
-		log.Fatalf("Failed to create HTTP request: %v", err)
-	}
-
-	// Menambahkan header Content-Type: application/json
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Basic U0ItTWlkLXNlcnZlci1kazQ1S0Zpb21QRW9UajFqeWpiWWd1Z1k6Og==")
-
-	// Membuat klien HTTP
-	client := &http.Client{}
-
-	// Mengirim request ke server
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Fatalf("Failed to send HTTP request: %v", err)
-	}
-	defer resp.Body.Close()
-
-	// Membaca respons dari server
-	var checkpayreq map[string]interface{}
-	err = json.NewDecoder(resp.Body).Decode(&checkpayreq)
-	sttscode := checkpayreq["status_code"]
-	trxped := checkpayreq["transaction_status"]
-
-	if err != nil {
-		log.Fatalf("Failed to decode JSON response: %v", err)
-	}
-
-	if sttscode == "404" {
-		payreload := make(map[string]interface{})
-
-		payreload["Payment_URL"] = transaction.Payment_url
-		payreload["Payment_Bank"] = transaction.Payment
-		payreload["Message"] = "Payment In Process"
-
-		return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Success Check Pay", payreload))
-	} else if trxped == "pending" {
-		payreload := make(map[string]interface{})
-
-		payreload["Payment_URL"] = transaction.Payment_url
-		payreload["Payment_Bank"] = transaction.Payment
-		payreload["Message"] = "Payment Pending"
-
-		return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Success Check Pay", payreload))
-	} else if trxped == "expire" {
-		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sorry! payment expired"))
-	} else if trxped == "cancel" {
-		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sorry! payment cancel"))
-	} else if trxped == "settlement" {
-
-		statustrx := "true"
-
-		updatetrx := entity.UpdateTransaction(input.Transactions_id, statustrx)
-
-		updatedTrx, err := h.transactionService.UpdateTransaction(updatetrx)
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
-		}
-
-		transaction_id_detail := uuid.MustParse(input.Transactions_id)
-		transactiondetail, err := h.transactionService.FindTrxdetailByID(transaction_id_detail)
+		transaction, err := h.transactionService.FindTrxByID(transactions_id)
 
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
 		}
-
-		if transactiondetail.Event_id == "" {
-			return c.JSON(http.StatusFound, response.ErrorResponse(http.StatusFound, "Sorry! We found Event no data"))
+		if transaction.Transactions_id == "" {
+			return c.JSON(http.StatusFound, response.ErrorResponse(http.StatusFound, "Sorry! We found User no data"))
 		}
-		Event_id := uuid.MustParse(transactiondetail.Event_id)
-		eventdata, err := h.transactionService.FindEventByID(Event_id)
+		// transactions_id_checkpay := uuid.MustParse(input.Transactions_id)
+		transactions_id_checkpay := transactions_id.String()
+
+		url := "https://api.sandbox.midtrans.com/v2/" + transactions_id_checkpay + "/status"
+		// "enabled_payments": ["bca_va"],
+		data := map[string]interface{}{}
+
+		// Mengubah data menjadi format JSON
+		payload, err := json.Marshal(data)
+		if err != nil {
+			log.Fatalf("Failed to marshal JSON: %v", err)
+		}
+
+		// Membuat request HTTP POST
+		req, err := http.NewRequest("GET", url, bytes.NewBuffer(payload))
+		if err != nil {
+			log.Fatalf("Failed to create HTTP request: %v", err)
+		}
+
+		// Menambahkan header Content-Type: application/json
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", "Basic U0ItTWlkLXNlcnZlci1kazQ1S0Zpb21QRW9UajFqeWpiWWd1Z1k6Og==")
+
+		// Membuat klien HTTP
+		client := &http.Client{}
+
+		// Mengirim request ke server
+		resp, err := client.Do(req)
+		if err != nil {
+			log.Fatalf("Failed to send HTTP request: %v", err)
+		}
+		defer resp.Body.Close()
+
+		// Membaca respons dari server
+		var checkpayreq map[string]interface{}
+		err = json.NewDecoder(resp.Body).Decode(&checkpayreq)
+		sttscode := checkpayreq["status_code"]
+		trxped := checkpayreq["transaction_status"]
 
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
+			log.Fatalf("Failed to decode JSON response: %v", err)
 		}
 
-		if eventdata.Event_id == "" {
-			return c.JSON(http.StatusFound, response.ErrorResponse(http.StatusFound, "Sorry! We found Event no data"))
+		if sttscode == "404" {
+			payreload := make(map[string]interface{})
+
+			payreload["Payment_URL"] = transaction.Payment_url
+			payreload["Payment_Bank"] = transaction.Payment
+			payreload["Message"] = "Payment In Process"
+
+			return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Success Check Pay", payreload))
+		} else if trxped == "pending" {
+			payreload := make(map[string]interface{})
+
+			payreload["Payment_URL"] = transaction.Payment_url
+			payreload["Payment_Bank"] = transaction.Payment
+			payreload["Message"] = "Payment Pending"
+
+			return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Success Check Pay", payreload))
+		} else if trxped == "expire" {
+			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sorry! payment expired"))
+		} else if trxped == "cancel" {
+			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sorry! payment cancel"))
+		} else if trxped == "settlement" {
+
+			statustrx := "true"
+
+			updatetrx := entity.UpdateTransaction(input.Transactions_id, statustrx)
+
+			updatedTrx, err := h.transactionService.UpdateTransaction(updatetrx)
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
+			}
+
+			transaction_id_detail := uuid.MustParse(input.Transactions_id)
+			transactiondetail, err := h.transactionService.FindTrxdetailByID(transaction_id_detail)
+
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
+			}
+
+			if transactiondetail.Event_id == "" {
+				return c.JSON(http.StatusFound, response.ErrorResponse(http.StatusFound, "Sorry! We found Event no data"))
+			}
+			Event_id := uuid.MustParse(transactiondetail.Event_id)
+			eventdata, err := h.transactionService.FindEventByID(Event_id)
+
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
+			}
+
+			if eventdata.Event_id == "" {
+				return c.JSON(http.StatusFound, response.ErrorResponse(http.StatusFound, "Sorry! We found Event no data"))
+			}
+
+			ticket_id := uuid.New().String()
+			codeqr := uuid.New().String()
+			NewTicketdata := entity.NewTicket(ticket_id, transaction.Transactions_id, eventdata.Event_id, codeqr, eventdata.Title_event, transactiondetail.Qty_event)
+
+			ticketdata, err := h.transactionService.CreateTicket(NewTicketdata)
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
+			}
+			fields := make(map[string]interface{})
+
+			fields["Ticket_id"] = ticketdata.Tickets_id
+			fields["Status_Payment"] = checkpayreq["transaction_status"]
+			fields["Status_Transaksi"] = updatedTrx.Status
+			fields["Message"] = "Payment Success"
+
+			return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Success Check Pay", fields))
+		} else {
+			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sorry! System error"))
 		}
 
-		ticket_id := uuid.New().String()
-		codeqr := uuid.New().String()
-		NewTicketdata := entity.NewTicket(ticket_id, transaction.Transactions_id, eventdata.Event_id, codeqr, eventdata.Title_event, transactiondetail.Qty_event)
-
-		ticketdata, err := h.transactionService.CreateTicket(NewTicketdata)
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
-		}
-		fields := make(map[string]interface{})
-
-		fields["Ticket_id"] = ticketdata.Tickets_id
-		fields["Status_Payment"] = checkpayreq["transaction_status"]
-		fields["Status_Transaksi"] = updatedTrx.Status
-		fields["Message"] = "Payment Success"
-
-		return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Success Check Pay", fields))
 	} else {
-		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sorry! System error"))
+		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sorry! not UUID"))
 	}
 
 }
@@ -428,45 +433,63 @@ func (h *TransactionHandler) FindAllTransaction(c echo.Context) error {
 		}
 	}
 	if input.Key == "trx_user" {
-		trx_id := uuid.MustParse(input.Transactions_id)
-		User_id := uuid.MustParse(input.User_id)
-
-		trxdatauser, err := h.transactionService.FindTrxrelationByID(trx_id, User_id)
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
+		if input.User_id == "" || input.Transactions_id == "" {
+			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sorry! Colum empty"))
 		}
-		if trxdatauser.Transactions_id == "" && trxdatauser.User_id == "" {
-			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Data Not Found"))
+		if isValidUUID(input.User_id) {
+			if isValidUUID(input.Transactions_id) {
+				trx_id := uuid.MustParse(input.Transactions_id)
+				User_id := uuid.MustParse(input.User_id)
+
+				trxdatauser, err := h.transactionService.FindTrxrelationByID(trx_id, User_id)
+				if err != nil {
+					return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
+				}
+				if trxdatauser.Transactions_id == "" && trxdatauser.User_id == "" {
+					return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Data Not Found"))
+				} else {
+					return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Success menampilkan data Transaction", trxdatauser))
+				}
+			} else {
+				return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sorry! not UUID"))
+			}
 		} else {
-			return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Success menampilkan data Transaction", trxdatauser))
+			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sorry! not UUID"))
 		}
 	}
 
 	if input.Key == "trx_admin_all" {
-		User_id := uuid.MustParse(input.User_id)
-		valuser, err := h.transactionService.FindUserByID(User_id)
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
-		}
 
-		if valuser.Role == "admin" {
-			trxdatauser, err := h.transactionService.FindTrxrelationadminByID(User_id)
+		if input.User_id == "" {
+			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sorry! Colum empty"))
+		}
+		if isValidUUID(input.User_id) {
+			User_id := uuid.MustParse(input.User_id)
+			valuser, err := h.transactionService.FindUserByID(User_id)
 			if err != nil {
 				return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
 			}
-			if trxdatauser == nil {
-				return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Data Not Found"))
-			} else {
-				return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Success menampilkan data Transaction", trxdatauser))
+
+			if valuser.Role == "admin" {
+				trxdatauser, err := h.transactionService.FindTrxrelationadminByID(User_id)
+				if err != nil {
+					return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
+				}
+				if trxdatauser == nil {
+					return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Data Not Found"))
+				} else {
+					return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Success menampilkan data Transaction", trxdatauser))
+				}
 			}
+			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sorry! access denied"))
+		} else {
+			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sorry! not UUID"))
 		}
-		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sorry! access denied"))
 	}
 	return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Format Key Not Found"))
 
-	// transaction, err := h.transactionService.FindAllTransaction()
-	// if err != nil {
-	// 	return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
-	// }
-
 }
+
+// func (h *TransactionHandler) CancelPayTransaction(c echo.Context) error {
+
+// }
