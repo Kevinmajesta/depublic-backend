@@ -269,6 +269,10 @@ func (h *TransactionHandler) CheckPayTransaction(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "ada kesalahan input"))
 	}
 
+	if input.Transactions_id == "" {
+		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sorry! Colum empty"))
+	}
+
 	transactions_id := uuid.MustParse(input.Transactions_id)
 
 	transaction, err := h.transactionService.FindTrxByID(transactions_id)
@@ -276,7 +280,9 @@ func (h *TransactionHandler) CheckPayTransaction(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
 	}
-
+	if transaction.Transactions_id == "" {
+		return c.JSON(http.StatusFound, response.ErrorResponse(http.StatusFound, "Sorry! We found User no data"))
+	}
 	// transactions_id_checkpay := uuid.MustParse(input.Transactions_id)
 	transactions_id_checkpay := transactions_id.String()
 
