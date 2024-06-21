@@ -153,6 +153,12 @@ func (h *EventHandler) UpdateEvent(c echo.Context) error {
 	file, err := c.FormFile("image")
 	var imageURL string
 	if err == nil {
+		// Check image format
+		chckFormat := strings.ToLower(filepath.Ext(file.Filename))
+		if chckFormat != ".jpg" && chckFormat != ".jpeg" && chckFormat != ".png" {
+			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Invalid image format. Only jpg, jpeg, and png are allowed"))
+		}
+
 		src, err := file.Open()
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, "Failed to open image"))
@@ -164,13 +170,6 @@ func (h *EventHandler) UpdateEvent(c echo.Context) error {
 		imagePath := filepath.Join("assets", "images", imageFilename)
 
 		dst, err := os.Create(imagePath)
-
-		// Check image format
-		chckFormat := strings.ToLower(filepath.Ext(file.Filename))
-		if chckFormat != ".jpg" && chckFormat != ".jpeg" && chckFormat != ".png" {
-			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Invalid image format. Only jpg, jpeg, and png are allowed"))
-		}
-
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, "Failed to create image file"))
 		}
