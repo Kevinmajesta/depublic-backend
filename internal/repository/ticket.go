@@ -13,6 +13,7 @@ import (
 type TicketRepository interface {
 	FindAllTicket() ([]entity.Tickets, error)
 	FindTicketsByEventID(eventID uuid.UUID) ([]entity.Tickets, error)
+	FindTicketsByQRCode(QRCode uuid.UUID) ([]entity.Tickets, error)
 }
 
 type ticketRepository struct {
@@ -36,12 +37,7 @@ func (r *ticketRepository) FindAllTicket() ([]entity.Tickets, error) {
 			return tickets, nil
 		}
 	}
-
-	result := r.db.
-		Model(&entity.Tickets{}).
-		Joins("JOIN transactions ON transactions.transactions_id = tickets.transaction_id").
-		Where("transactions.status = ?", true).
-		Find(&tickets)
+	result := r.db.Find(&tickets)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -55,8 +51,20 @@ func (r *ticketRepository) FindAllTicket() ([]entity.Tickets, error) {
 }
 
 func (r *ticketRepository) FindTicketsByEventID(eventID uuid.UUID) ([]entity.Tickets, error) {
+	// Check if event with given ID exists first
 	var tickets []entity.Tickets
 	if err := r.db.Where("event_id = ?", eventID).Find(&tickets).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return tickets, nil
+}
+
+func (r *ticketRepository) FindTicketsByQRCode(QRCode uuid.UUID) ([]entity.Tickets, error) {
+	var tickets []entity.Tickets
+	if err := r.db.Where("code_qr = ?", QRCode).Find(&tickets).Error; err != nil {
 		return nil, err
 	}
 	return tickets, nil

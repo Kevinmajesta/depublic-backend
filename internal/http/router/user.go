@@ -207,7 +207,10 @@ func PublicRoutes(userHandler handler.UserHandler,
 func PrivateRoutes(userHandler handler.UserHandler,
 	adminHandler handler.AdminHandler,
 	transactionHandler handler.TransactionHandler, cartHandler handler.CartHandler,
-	wishlistHandler handler.WishlistHandler, notificationHandler handler.NotificationHandler, eventHandler handler.EventHandler, categoryHandler handler.CategoryHandler) []*route.Route {
+	wishlistHandler handler.WishlistHandler,
+	notificationHandler handler.NotificationHandler,
+	eventHandler handler.EventHandler, categoryHandler handler.CategoryHandler,
+	ticketHandler handler.TicketHandler) []*route.Route {
 	return []*route.Route{
 
 		{
@@ -406,6 +409,25 @@ func PrivateRoutes(userHandler handler.UserHandler,
 			Path:    "/user/notification",
 			Handler: notificationHandler.GetUserNotificationNoRead,
 			Roles:   allRoles,
+		},
+		//ticket
+		{
+			Method:  http.MethodGet,
+			Path:    "/tickets/event/:eventID",
+			Handler: ticketHandler.FindTicketsByEventID,
+			Roles:   onlyAdmin,
+		},
+		{
+			Method:  http.MethodGet,
+			Path:    "/tickets/:QRCode",
+			Handler: ticketHandler.FindTicketsByQRCode,
+			Roles:   onlyAdmin,
+		},
+		{
+			Method:  http.MethodGet,
+			Path:    "/tickets",
+			Handler: ticketHandler.FindAllTicket,
+			Roles:   onlyAdmin,
 		},
 	}
 }

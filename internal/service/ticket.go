@@ -10,7 +10,7 @@ import (
 type TicketService interface {
 	FindAllTicket() ([]entity.Tickets, error)
 	FindTicketsByEventID(eventID uuid.UUID) ([]entity.Tickets, error)
-	CreateTicket(ticket *entity.Tickets) (*entity.Tickets, error) // Fungsi baru untuk membuat tiket
+	FindTicketsByQRCode(QRCode uuid.UUID) ([]entity.Tickets, error)
 }
 
 type ticketService struct {
@@ -31,6 +31,15 @@ func (s *ticketService) FindAllTicket() ([]entity.Tickets, error) {
 
 func (s *ticketService) FindTicketsByEventID(eventID uuid.UUID) ([]entity.Tickets, error) {
 	tickets, err := s.ticketRepository.FindTicketsByEventID(eventID)
+	if err != nil {
+		return nil, err
+	}
+	
+	return tickets, nil
+}
+
+func (s *ticketService) FindTicketsByQRCode(QRCode uuid.UUID) ([]entity.Tickets, error) {
+	tickets, err := s.ticketRepository.FindTicketsByQRCode(QRCode)
 	if err != nil {
 		return nil, err
 	}

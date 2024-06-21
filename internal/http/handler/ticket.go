@@ -12,6 +12,7 @@ import (
 
 type TicketHandler struct {
 	ticketService service.TicketService
+	
 }
 
 func NewTicketHandler(ticketService service.TicketService) TicketHandler {
@@ -39,18 +40,21 @@ func (h *TicketHandler) FindTicketsByEventID(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, err.Error()))
 	}
+	if tickets == nil {
+		return c.JSON(http.StatusNotFound, response.ErrorResponse(http.StatusNotFound, "event ID not found"))
+	}
 	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "successfully displays ticket data for the event", tickets))
 }
 
-// func (h *TicketHandler) FindTicketsByQRCode(c echo.Context) error {
-// 	QRCodeParam := c.Param("QRCode")
-// 	QRCodeUUID, err := uuid.Parse(QRCodeParam)
-// 	if err != nil {
-// 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "invalid QRCode"))
-// 	}
-// 	qrcodes, err := h.ticketService.FindTicketsByQRCode(QRCodeUUID)
-// 	if err != nil {
-// 		return c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, err.Error()))
-// 	}
-// 	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "successfully displays ticket data for the QRCode", qrcodes))
-// }
+func (h *TicketHandler) FindTicketsByQRCode(c echo.Context) error {
+	QRCodeParam := c.Param("QRCode")
+	QRCodeUUID, err := uuid.Parse(QRCodeParam)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "invalid QRCode"))
+	}
+	qrcodes, err := h.ticketService.FindTicketsByQRCode(QRCodeUUID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, err.Error()))
+	}
+	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "successfully displays ticket data for the QRCode", qrcodes))
+}

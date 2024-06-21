@@ -91,7 +91,12 @@ func BuildPrivateRoutes(db *gorm.DB, redisDB *redis.Client, encryptTool encrypt.
 	categoryService := service.NewCategoryService(categoryRepository)
 	categoryHandler := handler.NewCategoryHandler(categoryService)
 
-	return router.PrivateRoutes(userHandler, adminHandler, transactionHandler, cartHandler, wishlistHandler, notificationHandler, eventHandler, categoryHandler)
+	ticketRepository := repository.NewTicketRepository(db, cacheable)
+	ticketService := service.NewTicketService(ticketRepository, nil)
+	ticketHandler := handler.NewTicketHandler(ticketService)
+
+	return router.PrivateRoutes(userHandler, adminHandler, transactionHandler,
+		cartHandler, wishlistHandler, notificationHandler, eventHandler, categoryHandler, ticketHandler)
 }
 
 // func SetupEcho(db *gorm.DB) *echo.Echo {
