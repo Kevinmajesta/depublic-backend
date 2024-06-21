@@ -244,6 +244,11 @@ func (r *eventRepository) FilterEvents(
 // }
 
 func (r *eventRepository) SortEvents(sortBy string) ([]entity.Events, error) {
+	wib, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		panic(err) // Handle error appropriately in real use case
+	}
+
 	var events []entity.Events
 	query := r.db
 
@@ -256,7 +261,8 @@ func (r *eventRepository) SortEvents(sortBy string) ([]entity.Events, error) {
 	case "termurah":
 		query = query.Order("price_event ASC")
 	case "terdekat":
-		query = query.Order("date_event ASC").Where("date_event >= ?", time.Now().Format("200-01-01"))
+
+		query = query.Order("date_event ASC").Where("date_event >= ?", time.Now().In(wib).Format("2006-01-02"))
 	default:
 		// Default sorting if sort_by is not recognized
 		query = query.Order("date_event DESC")
