@@ -11,7 +11,6 @@ import (
 
 type CartService interface {
 	GetAllCart() ([]entity.Carts, error)
-	GetCartById(CartId uuid.UUID) (*entity.Carts, error)
 	GetCartByUserId(UserId uuid.UUID) (*entity.Carts, error)
 	AddToCart(UserId, EventId uuid.UUID) (*entity.Carts, error)
 	RemoveCart(CartId uuid.UUID) (bool, error)
@@ -22,11 +21,12 @@ type CartService interface {
 type cartService struct {
 	cartRepository      repository.CartRepository
 	repo                repository.EventRepository
+	userRepo            repository.UserRepository
 	notificationService NotificationService
 }
 
-func NewCartService(cartRepository repository.CartRepository, repo repository.EventRepository, notificationService NotificationService) CartService {
-	return &cartService{cartRepository: cartRepository, repo: repo, notificationService: notificationService}
+func NewCartService(cartRepository repository.CartRepository, repo repository.EventRepository, userRepo repository.UserRepository, notificationService NotificationService) CartService {
+	return &cartService{cartRepository: cartRepository, repo: repo, userRepo: userRepo, notificationService: notificationService}
 }
 
 func (s *cartService) GetAllCart() ([]entity.Carts, error) {
@@ -35,10 +35,6 @@ func (s *cartService) GetAllCart() ([]entity.Carts, error) {
 		return nil, err
 	}
 	return carts, nil
-}
-
-func (s *cartService) GetCartById(CartId uuid.UUID) (*entity.Carts, error) {
-	return s.cartRepository.FindCartById(CartId)
 }
 
 func (s *cartService) GetCartByUserId(UserId uuid.UUID) (*entity.Carts, error) {
@@ -57,6 +53,26 @@ func (s *cartService) GetCartByUserId(UserId uuid.UUID) (*entity.Carts, error) {
 }
 
 func (s *cartService) AddToCart(UserId, EventId uuid.UUID) (*entity.Carts, error) {
+
+	//check if user exists in db
+	checkUser, err := s.userRepo.CheckUser(UserId)
+	if err != nil {
+		return nil, err
+	}
+
+	if checkUser == nil {
+		return nil, errors.New("users does not exist")
+	}
+
+	//check if event exists in db
+	checkEvent, err := s.repo.CheckEvent(EventId)
+	if err != nil {
+		return nil, err
+	}
+
+	if checkEvent == nil {
+		return nil, errors.New("events does not exist")
+	}
 
 	//check if the user already has a quantity of an event in his cart.
 	exist, err := s.cartRepository.CheckIfEventAlreadyAdded(UserId, EventId)
@@ -149,39 +165,60 @@ func (s *cartService) AddToCart(UserId, EventId uuid.UUID) (*entity.Carts, error
 }
 
 func (s *cartService) UpdateQuantityAdd(UserId, EventId uuid.UUID) error {
-	// Mendapatkan kuantitas terakhir di keranjang
+
+	//check if user exists in db
+	checkUser, err := s.userRepo.CheckUser(UserId)
+	if err != nil {
+		return err
+	}
+
+	if checkUser == nil {
+		return errors.New("users does not exist")
+	}
+
+	//check if event exists in db
+	checkEvent, err := s.repo.CheckEvent(EventId)
+	if err != nil {
+		return err
+	}
+
+	if checkEvent == nil {
+		return errors.New("events does not exist")
+	}
+
+	// Get the last quantity in the cart
 	lastQtyCart, err := s.cartRepository.GetUserTotalQtyInCart(UserId, EventId)
 	if err != nil {
 		return err
 	}
 
-	// Jika kuantitas di keranjang sudah 1 atau kurang, kembalikan error
+	// If the quantity in the cart is already 5 or more, return an error
 	if lastQtyCart >= 5 {
 		return errors.New("you cannot update quantity more than 5")
 	}
 
-	// Mengurangi kuantitas di keranjang
+	// Increase the quantity in the cart
 	err = s.cartRepository.UpdateQuantityAdd(UserId, EventId)
 	if err != nil {
 		return err
 	}
 
-	// Mengambil harga dari event yang terkait
+	// Get the price of the related event
 	price, err := s.repo.CheckPriceEvent(EventId)
 	if err != nil {
 		return err
 	}
 
-	// Menghitung harga total baru setelah mengurangi kuantitas
+	// Calculate the new total price after increasing the quantity
 	newTotalPrice := price * int(lastQtyCart+1)
 
-	// Update total harga di keranjang
+	// Update the total price in the cart
 	err = s.cartRepository.UpdateTotalPrice(UserId, EventId, newTotalPrice)
 	if err != nil {
 		return err
 	}
 
-	// Menambahkan kembali stok yang telah dikurangi
+	// Decrease the stock of the event that was increased
 	err = s.repo.DecreaseEventStock(EventId, 1)
 	if err != nil {
 		return err
@@ -191,6 +228,27 @@ func (s *cartService) UpdateQuantityAdd(UserId, EventId uuid.UUID) error {
 }
 
 func (s *cartService) UpdateQuantityLess(UserId, EventId uuid.UUID) error {
+
+	//check if user exists in db
+	checkUser, err := s.userRepo.CheckUser(UserId)
+	if err != nil {
+		return err
+	}
+
+	if checkUser == nil {
+		return errors.New("users does not exist")
+	}
+
+	//check if event exists in db
+	checkEvent, err := s.repo.CheckEvent(EventId)
+	if err != nil {
+		return err
+	}
+
+	if checkEvent == nil {
+		return errors.New("events does not exist")
+	}
+
 	// retrieve the last quantity of users and event
 	lastQtyCart, err := s.cartRepository.GetUserTotalQtyInCart(UserId, EventId)
 	if err != nil {

@@ -16,11 +16,13 @@ type WishlistService interface {
 
 type wishlistService struct {
 	wishlistRepository  repository.WishlistRepository
+	repo                repository.EventRepository
+	userRepo            repository.UserRepository
 	notificationService NotificationService
 }
 
-func NewWishlistService(wishlistRepository repository.WishlistRepository, notificationService NotificationService) WishlistService {
-	return &wishlistService{wishlistRepository: wishlistRepository, notificationService: notificationService}
+func NewWishlistService(wishlistRepository repository.WishlistRepository, repo repository.EventRepository, userRepo repository.UserRepository, notificationService NotificationService) WishlistService {
+	return &wishlistService{wishlistRepository: wishlistRepository, repo: repo, userRepo: userRepo, notificationService: notificationService}
 }
 
 func (s *wishlistService) GetAllWishlist() ([]entity.Wishlist, error) {
@@ -32,7 +34,28 @@ func (s *wishlistService) GetAllWishlist() ([]entity.Wishlist, error) {
 }
 
 func (s *wishlistService) AddWishlist(wishlist *entity.Wishlist) (*entity.Wishlist, error) {
-	// Periksa apakah event dengan event_id dan user_id yang sama sudah ada di wishlist
+
+	//check if user exists in db
+	checkUser, err := s.userRepo.CheckUser(wishlist.UserId)
+	if err != nil {
+		return nil, err
+	}
+
+	if checkUser == nil {
+		return nil, errors.New("users does not exist")
+	}
+
+	//check if event exists in db
+	checkEvent, err := s.repo.CheckEvent(wishlist.EventId)
+	if err != nil {
+		return nil, err
+	}
+
+	if checkEvent == nil {
+		return nil, errors.New("events does not exist")
+	}
+
+	// Check if events with the same event_id and user_id are already on the wishlist
 	existingWishlist, err := s.wishlistRepository.GetWishlistByEventAndUser(wishlist.EventId, wishlist.UserId)
 	if err != nil {
 		return nil, err
@@ -57,7 +80,7 @@ func (s *wishlistService) AddWishlist(wishlist *entity.Wishlist) (*entity.Wishli
 }
 
 func (s *wishlistService) RemoveWishlist(EventId, UserId uuid.UUID) (*entity.Wishlist, error) {
-	// Periksa apakah event dengan eventID dan userID yang sama sudah ada di wishlist
+	// Check if events with the same EventId and UserId are already on the wishlist
 	existingWishlist, err := s.wishlistRepository.GetWishlistByEventAndUser(EventId, UserId)
 	if err != nil {
 		return nil, err
@@ -67,7 +90,7 @@ func (s *wishlistService) RemoveWishlist(EventId, UserId uuid.UUID) (*entity.Wis
 		return nil, errors.New("wishlist not found for the given event and user")
 	}
 
-	// Hapus wishlist
+	// Delete wishlist
 	err = s.wishlistRepository.RemoveWishlist(EventId, UserId)
 	if err != nil {
 		return nil, err

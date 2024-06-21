@@ -19,8 +19,7 @@ var (
 )
 
 func PublicRoutes(userHandler handler.UserHandler,
-	adminHandler handler.AdminHandler, cartHandler handler.CartHandler,
-	wishlistHandler handler.WishlistHandler, notificationHandler handler.NotificationHandler, eventHandler handler.EventHandler, categoryHandler handler.CategoryHandler) []*route.Route {
+	adminHandler handler.AdminHandler, notificationHandler handler.NotificationHandler, eventHandler handler.EventHandler, categoryHandler handler.CategoryHandler) []*route.Route {
 	return []*route.Route{
 		{
 			Method:  http.MethodPost,
@@ -57,58 +56,6 @@ func PublicRoutes(userHandler handler.UserHandler,
 			Path:    "/password-reset",
 			Handler: userHandler.ResetPassword,
 		},
-		{
-			Method:  http.MethodGet,
-			Path:    "/wishlist",
-			Handler: wishlistHandler.GetAllWishlist,
-		},
-		{
-			Method:  http.MethodPost,
-			Path:    "/wishlist/create",
-			Handler: wishlistHandler.AddWishlist,
-		},
-		{
-			Method:  http.MethodDelete,
-			Path:    "/wishlist/remove",
-			Handler: wishlistHandler.RemoveWishlist,
-		},
-		{
-			Method:  http.MethodGet,
-			Path:    "/cart",
-			Handler: cartHandler.GetAllCarts,
-		},
-		{
-			Method:  http.MethodPost,
-			Path:    "/cart",
-			Handler: cartHandler.AddToCart,
-		},
-		{
-			Method:  http.MethodPost,
-			Path:    "/cart/less",
-			Handler: cartHandler.UpdateQuantityLess,
-		},
-		{
-			Method:  http.MethodPost,
-			Path:    "/cart/add",
-			Handler: cartHandler.UpdateQuantityAdd,
-		},
-		{
-			Method:  http.MethodGet,
-			Path:    "/cart/:id",
-			Handler: cartHandler.GetCartById,
-		},
-		{
-			Method:  http.MethodGet,
-			Path:    "/cart/:id",
-			Handler: cartHandler.GetCartByUserId,
-		},
-		{
-			Method:  http.MethodDelete,
-			Path:    "/cart/:id",
-			Handler: cartHandler.RemoveCart,
-		},
-
-		// TODO EVENT
 		{
 			Method:  http.MethodPost,
 			Path:    "/event",
@@ -157,9 +104,6 @@ func PublicRoutes(userHandler handler.UserHandler,
 			Handler: eventHandler.DeleteEventByID,
 			Roles:   onlyAdmin,
 		},
-
-		// TODO CATEGORY
-		// TODO ROUTE GET
 		{
 			Method:  http.MethodGet,
 			Path:    "/category",
@@ -270,13 +214,59 @@ func PrivateRoutes(userHandler handler.UserHandler,
 			Handler: transactionHandler.CheckPayTransaction,
 			Roles:   allRoles,
 		},
-
-		// {
-		// 	Method:  http.MethodPost,
-		// 	Path:    "transaction/pay-cancel",
-		// 	Handler: transactionHandler.CancelPayTransaction,
-		// 	Roles:   allRoles,
-		// },
+		{
+			Method:  http.MethodGet,
+			Path:    "/wishlist",
+			Handler: wishlistHandler.GetAllWishlist,
+			Roles:   onlyUser,
+		},
+		{
+			Method:  http.MethodPost,
+			Path:    "/wishlist/create",
+			Handler: wishlistHandler.AddWishlist,
+			Roles:   onlyUser,
+		},
+		{
+			Method:  http.MethodDelete,
+			Path:    "/wishlist/remove",
+			Handler: wishlistHandler.RemoveWishlist,
+			Roles:   onlyUser,
+		},
+		{
+			Method:  http.MethodGet,
+			Path:    "/cart",
+			Handler: cartHandler.GetAllCarts,
+			Roles:   onlyAdmin,
+		},
+		{
+			Method:  http.MethodPost,
+			Path:    "/cart",
+			Handler: cartHandler.AddToCart,
+			Roles:   onlyUser,
+		},
+		{
+			Method:  http.MethodPost,
+			Path:    "/cart/less",
+			Handler: cartHandler.UpdateQuantityLess,
+			Roles:   onlyUser,
+		},
+		{
+			Method:  http.MethodPost,
+			Path:    "/cart/add",
+			Handler: cartHandler.UpdateQuantityAdd,
+			Roles:   onlyUser,
+		},
+		{
+			Method:  http.MethodGet,
+			Path:    "/cart/:id",
+			Handler: cartHandler.GetCartByUserId,
+			Roles:   onlyUser,
+		},
+		{
+			Method:  http.MethodDelete,
+			Path:    "/cart/:id",
+			Handler: cartHandler.RemoveCart,
+		},
 		{
 			Method:  http.MethodPost,
 			Path:    "/notification",

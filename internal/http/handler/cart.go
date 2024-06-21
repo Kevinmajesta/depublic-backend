@@ -148,24 +148,6 @@ func (h *CartHandler) UpdateQuantityLess(c echo.Context) error {
 	})
 }
 
-func (h *CartHandler) GetCartById(c echo.Context) error {
-	input := binder.FindCartByIdRequest{}
-	if err := c.Bind(&input); err != nil {
-		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "there is an input error"))
-	}
-
-	cartId := uuid.MustParse(input.CartID)
-
-	// Memanggil service untuk menambahkan ke keranjang
-	cart, err := h.cartService.GetCartById(cartId)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
-	}
-
-	// Jika tidak ada kesalahan, kembalikan data AddCartResponse dalam respon JSON
-	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "successfully showed cart data", cart))
-}
-
 func (h *CartHandler) GetCartByUserId(c echo.Context) error {
 	input := binder.FindCartByUserIdRequest{}
 	if err := c.Bind(&input); err != nil {

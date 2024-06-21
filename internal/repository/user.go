@@ -29,6 +29,7 @@ type UserRepository interface {
 	GetEventName(EventId uuid.UUID) (string, error)
 	GetAllUserIds() ([]uuid.UUID, error)
 	UpdateUserJwtToken(userID uuid.UUID, token string, expiresAt time.Time) error
+	CheckUser(UserId uuid.UUID) (*entity.User, error)
 }
 
 type userRepository struct {
@@ -231,4 +232,13 @@ func (r *userRepository) GetAllUserIds() ([]uuid.UUID, error) {
 		return nil, result.Error
 	}
 	return userIds, nil
+}
+
+func (r *userRepository) CheckUser(UserId uuid.UUID) (*entity.User, error) {
+	var user entity.User
+	if err := r.db.Raw("SELECT * FROM users WHERE user_id = ?", UserId).First(&user).Error; err != nil {
+		return nil, errors.New("users does not exist")
+	}
+
+	return &user, nil
 }
