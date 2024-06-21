@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Kevinmajesta/depublic-backend/internal/entity"
@@ -76,6 +77,13 @@ func (h *EventHandler) AddEvent(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Failed to retrieve image"))
 	}
+
+	// Check image format
+	chckFormat := strings.ToLower(filepath.Ext(file.Filename))
+	if chckFormat != ".jpg" && chckFormat != ".jpeg" && chckFormat != ".png" {
+		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Invalid image format. Only jpg, jpeg, and png are allowed"))
+	}
+
 	src, err := file.Open()
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, "Failed to open image"))
@@ -156,6 +164,13 @@ func (h *EventHandler) UpdateEvent(c echo.Context) error {
 		imagePath := filepath.Join("assets", "images", imageFilename)
 
 		dst, err := os.Create(imagePath)
+
+		// Check image format
+		chckFormat := strings.ToLower(filepath.Ext(file.Filename))
+		if chckFormat != ".jpg" && chckFormat != ".jpeg" && chckFormat != ".png" {
+			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Invalid image format. Only jpg, jpeg, and png are allowed"))
+		}
+
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, "Failed to create image file"))
 		}
