@@ -132,14 +132,14 @@ func (s *adminService) CreateAdmin(admin *entity.Admin) (*entity.Admin, error) {
 		return nil, err
 	}
 	emailAddr := newAdmin.Email
-	err = s.emailSender.SendWelcomeEmail(emailAddr, "")
+	err = s.emailSender.SendWelcomeEmail(emailAddr, newAdmin.Fullname, "")
 
 	if err != nil {
 		return nil, err
 	}
 
 	resetCode := generateResetCode()
-	err = s.emailSender.SendVerificationEmail(newAdmin.Email, resetCode)
+	err = s.emailSender.SendVerificationEmail(newAdmin.Email, newAdmin.Fullname, resetCode)
 	if err != nil {
 		return nil, err
 	}

@@ -134,14 +134,14 @@ func (s *userService) CreateUser(user *entity.User) (*entity.User, error) {
 	}
 
 	emailAddr := newUser.Email
-	err = s.emailSender.SendWelcomeEmail(emailAddr, "")
+	err = s.emailSender.SendWelcomeEmail(emailAddr, newUser.Fullname, "")
 
 	if err != nil {
 		return nil, err
 	}
 
 	resetCode := generateResetCode()
-	err = s.emailSender.SendVerificationEmail(newUser.Email, resetCode)
+	err = s.emailSender.SendVerificationEmail(newUser.Email, newUser.Fullname, resetCode)
 	if err != nil {
 		return nil, err
 	}
@@ -227,7 +227,7 @@ func (s *userService) RequestPasswordReset(email string) error {
 		return errors.New("failed to save reset code")
 	}
 
-	return s.emailSender.SendResetPasswordEmail(user.Email, resetCode)
+	return s.emailSender.SendResetPasswordEmail(user.Email, user.Fullname , resetCode)
 }
 
 func (s *userService) ResetPassword(resetCode string, newPassword string) error {

@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/Kevinmajesta/depublic-backend/internal/entity"
 	"github.com/Kevinmajesta/depublic-backend/internal/repository"
+	"github.com/Kevinmajesta/depublic-backend/pkg/email"
 	"github.com/google/uuid"
 )
 
@@ -23,13 +24,29 @@ type TransactionService interface {
 
 type transactionService struct {
 	transactionRepository repository.TransactionRepository
+	emailSender           *email.EmailSender
+	userRepository        repository.UserRepository
 }
 
-func NewTransactionService(transactionRepo repository.TransactionRepository) TransactionService {
-	return &transactionService{transactionRepository: transactionRepo}
+func NewTransactionService(transactionRepo repository.TransactionRepository, emailSender *email.EmailSender, userRepo repository.UserRepository) TransactionService {
+	return &transactionService{transactionRepository: transactionRepo, emailSender: emailSender, userRepository: userRepo}
 }
 
 func (s *transactionService) CreateTransaction(transaction *entity.Transactions) (*entity.Transactions, error) {
+	userID, err := uuid.Parse(transaction.User_id)
+	if err != nil {
+		return nil, err
+	}
+	user, err := s.userRepository.FindUserByID(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.emailSender.SendTransactionInfo(user.Email, transaction.Transactions_id, transaction.Cart_id,
+		transaction.User_id, transaction.Fullname_user, transaction.Trx_date.String(), transaction.Payment, transaction.Payment_url, transaction.Amount)
+	if err != nil {
+		return nil, err
+	}
 	return s.transactionRepository.CreateTransaction(transaction)
 }
 
