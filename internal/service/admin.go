@@ -55,24 +55,47 @@ func (s *adminService) LoginAdmin(email string, password string) (string, error)
 		return "", errors.New("wrong input email/password")
 	}
 
-	// Lanjutkan dengan pembuatan token dan logika lainnya
 	expiredTime := time.Now().Local().Add(1 * time.Hour)
 
+	location, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		panic(err)
+	}
+
+	// Dekripsi nomor telepon jika perlu
+	admin.Phone, _ = s.encryptTool.Decrypt(admin.Phone)
+	expiredTimeInJakarta := expiredTime.In(location)
+	// Buat claims JWT
 	claims := token.JwtCustomClaims{
 		ID:    admin.User_ID.String(),
 		Email: admin.Email,
 		Role:  "admin",
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    "Depublic",
-			ExpiresAt: jwt.NewNumericDate(expiredTime),
+			ExpiresAt: jwt.NewNumericDate(expiredTimeInJakarta),
 		},
 	}
 
-	token, err := s.tokenUseCase.GenerateAccessToken(claims)
+	// Generate JWT token
+	jwtToken, err := s.tokenUseCase.GenerateAccessToken(claims)
 	if err != nil {
 		return "", errors.New("there is an error in the system")
 	}
-	return token, nil
+
+	// nyimpen token JWT dan waktu ke database
+	admin.JwtToken = jwtToken
+	admin.JwtTokenExpiresAt = expiredTime
+
+	// update token JWT dan waktu di database
+	if err := s.adminRepository.UpdateAdminJwtToken(admin.User_ID, jwtToken, expiredTime); err != nil {
+		return "", errors.New("failed to update user token info")
+	}
+
+	// double check buat bandingin JWT yang dibuat dengan JWT yang tersimpan di database
+	if admin.JwtToken != jwtToken {
+		return "", errors.New("JWT token mismatch")
+	}
+	return jwtToken, nil
 }
 
 func (s *adminService) FindAllUser() ([]entity.User, error) {
