@@ -18,8 +18,10 @@ type User struct {
 	ResetCode          string    `json:"reset_code"`
 	ResetCodeExpiresAt time.Time `json:"reset_code_expires_at"`
 	Auditable
-	Verification     bool   `json:"verification"`
-	VerificationCode string `json:"verification_code"`
+	Verification      bool      `json:"verification"`
+	VerificationCode  string    `json:"verification_code"`
+	JwtToken          string    `json:"jwt_token,omitempty"`
+	JwtTokenExpiresAt time.Time `json:"jwt_token_expires_at,omitempty"`
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {

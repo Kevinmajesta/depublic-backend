@@ -2,6 +2,7 @@ package repository
 
 import (
 	"encoding/json"
+	"errors"
 	"time"
 
 	"github.com/Kevinmajesta/depublic-backend/internal/entity"
@@ -26,6 +27,7 @@ type UserRepository interface {
 	FindCartByUserId(UserId uuid.UUID) (int, error)
 	GetEventInCart(UserId uuid.UUID) ([]int, error)
 	GetEventName(EventId uuid.UUID) (string, error)
+	UpdateUserJwtToken(userID uuid.UUID, token string, expiresAt time.Time) error
 }
 
 type userRepository struct {
@@ -200,4 +202,23 @@ func (r *userRepository) GetEventName(EventId uuid.UUID) (string, error) {
 	}
 
 	return titleEvent, nil
+}
+
+func (u *userRepository) UpdateUserJwtToken(userID uuid.UUID, token string, expiresAt time.Time) error {
+	result := u.db.Model(&entity.User{}).
+		Where("user_id = ? AND deleted_at IS NULL", userID).
+		Updates(map[string]interface{}{
+			"jwt_token":            token,
+			"jwt_token_expires_at": expiresAt,
+		})
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("user not found or already deleted")
+	}
+
+	return nil
 }

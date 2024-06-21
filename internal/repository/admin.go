@@ -2,6 +2,7 @@ package repository
 
 import (
 	"encoding/json"
+	"errors"
 	"time"
 
 	"github.com/Kevinmajesta/depublic-backend/internal/entity"
@@ -19,6 +20,7 @@ type AdminRepository interface {
 	UpdateAdmin(admin *entity.Admin) (*entity.Admin, error)
 	DeleteAdmin(admin *entity.Admin) (bool, error)
 	SaveVerifCode(userID uuid.UUID, resetCode string) error
+	UpdateAdminJwtToken(userID uuid.UUID, token string, expiresAt time.Time) error
 }
 
 type adminRepository struct {
@@ -116,4 +118,23 @@ func (r *adminRepository) SaveVerifCode(user_ID uuid.UUID, resetCode string) err
 	return r.db.Model(&entity.User{}).Where("user_id = ?", user_ID).Updates(map[string]interface{}{
 		"verification_code": resetCode,
 	}).Error
+}
+
+func (u *adminRepository) UpdateAdminJwtToken(userID uuid.UUID, token string, expiresAt time.Time) error {
+	result := u.db.Model(&entity.User{}).
+		Where("user_id = ? AND deleted_at IS NULL", userID).
+		Updates(map[string]interface{}{
+			"jwt_token":            token,
+			"jwt_token_expires_at": expiresAt,
+		})
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("user not found or already deleted")
+	}
+
+	return nil
 }

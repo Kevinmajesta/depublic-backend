@@ -1,6 +1,8 @@
 package entity
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -13,7 +15,9 @@ type Admin struct {
 	Role     string    `json:"role"`
 	Phone    string    `json:"phone"`
 	Auditable
-	Verification bool `json:"verification"`
+	Verification      bool      `json:"verification"`
+	JwtToken          string    `json:"jwt_token,omitempty"`
+	JwtTokenExpiresAt time.Time `json:"jwt_token_expires_at,omitempty"`
 }
 
 func (u *Admin) BeforeCreate(tx *gorm.DB) (err error) {
