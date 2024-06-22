@@ -14,6 +14,8 @@ type TicketRepository interface {
 	FindAllTicket() ([]entity.Tickets, error)
 	FindTicketsByEventID(eventID uuid.UUID) ([]entity.Tickets, error)
 	FindTicketsByQRCode(QRCode uuid.UUID) ([]entity.Tickets, error)
+	CheckTicketExists(id uuid.UUID) (bool, error)
+	CheckTicketCodeQRExists(id uuid.UUID) (bool, error)
 }
 
 type ticketRepository struct {
@@ -23,6 +25,22 @@ type ticketRepository struct {
 
 func NewTicketRepository(db *gorm.DB, cacheable cache.Cacheable) *ticketRepository {
 	return &ticketRepository{db: db, cacheable: cacheable}
+}
+
+func (r *ticketRepository) CheckTicketExists(id uuid.UUID) (bool, error) {
+	var count int64
+	if err := r.db.Model(&entity.Tickets{}).Where("event_id = ?", id).Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
+func (r *ticketRepository) CheckTicketCodeQRExists(id uuid.UUID) (bool, error) {
+	var count int64
+	if err := r.db.Model(&entity.Tickets{}).Where("code_qr = ?", id).Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }
 
 func (r *ticketRepository) FindAllTicket() ([]entity.Tickets, error) {
