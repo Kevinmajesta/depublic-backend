@@ -26,9 +26,9 @@ func BuildPublicRoutes(db *gorm.DB, redisDB *redis.Client, tokenUseCase token.To
 
 	notificationRepository := repository.NewNotificationRepository(db, cacheable)
 	notificationService := service.NewNotificationService(notificationRepository, tokenUseCase, userRepository)
-	notificationHandler := handler.NewNotificationHandler(notificationService)
-
 	userService := service.NewUserService(userRepository, tokenUseCase, encryptTool, emailService, notificationService)
+	notificationHandler := handler.NewNotificationHandler(notificationService, userService)
+
 	userHandler := handler.NewUserHandler(userService)
 
 	adminRepository := repository.NewAdminRepository(db, nil)
@@ -55,9 +55,9 @@ func BuildPrivateRoutes(db *gorm.DB, redisDB *redis.Client, encryptTool encrypt.
 
 	notificationRepository := repository.NewNotificationRepository(db, cacheable)
 	notificationService := service.NewNotificationService(notificationRepository, nil, userRepository)
-	notificationHandler := handler.NewNotificationHandler(notificationService)
-
 	userService := service.NewUserService(userRepository, nil, encryptTool, nil, notificationService)
+	notificationHandler := handler.NewNotificationHandler(notificationService, userService)
+
 	userHandler := handler.NewUserHandler(userService)
 
 	adminRepository := repository.NewAdminRepository(db, cacheable)

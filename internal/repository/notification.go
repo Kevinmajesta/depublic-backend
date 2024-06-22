@@ -12,6 +12,7 @@ type NotificationRepository interface {
 	GetUserNotificationsNoRead(userID uuid.UUID) ([]*entity.Notification, error)
 	CreateNotification(notification *entity.Notification) error
 	MarkNotificationAsRead(notificationID uuid.UUID) error
+	CheckUserExists(id uuid.UUID) (bool, error)
 }
 
 type notificationRepository struct {
@@ -74,6 +75,14 @@ func (r *notificationRepository) GetUserNotifications(userID uuid.UUID) ([]*enti
 		return notifications, nil
 	}
 	return notifications, nil
+}
+
+func (r *notificationRepository) CheckUserExists(id uuid.UUID) (bool, error) {
+	var count int64
+	if err := r.db.Model(&entity.Notification{}).Where("user_id = ?", id).Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }
 
 func (r *notificationRepository) GetUserNotificationsNoRead(userID uuid.UUID) ([]*entity.Notification, error) {
