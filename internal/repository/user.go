@@ -30,6 +30,7 @@ type UserRepository interface {
 	GetAllUserIds() ([]uuid.UUID, error)
 	UpdateUserJwtToken(userID uuid.UUID, token string, expiresAt time.Time) error
 	CheckUser(UserId uuid.UUID) (*entity.User, error)
+	CheckUserExists(id uuid.UUID) (bool, error)
 }
 
 type userRepository struct {
@@ -68,11 +69,17 @@ func (r *userRepository) CreateUser(user *entity.User) (*entity.User, error) {
 	return user, nil
 }
 
+func (r *userRepository) CheckUserExists(id uuid.UUID) (bool, error) {
+	var count int64
+	if err := r.db.Model(&entity.User{}).Where("user_id = ?", id).Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
 func (r *userRepository) UpdateUser(user *entity.User) (*entity.User, error) {
-	// Use map to store fields to be updated.
 	fields := make(map[string]interface{})
 
-	// Update fields only if they are not empty.
 	if user.Fullname != "" {
 		fields["fullname"] = user.Fullname
 	}
@@ -92,7 +99,6 @@ func (r *userRepository) UpdateUser(user *entity.User) (*entity.User, error) {
 		fields["phone"] = user.Phone
 	}
 
-	// Update the database in one query.
 	if err := r.db.Model(user).Where("user_id = ?", user.UserId).Updates(fields).Error; err != nil {
 		return user, err
 	}

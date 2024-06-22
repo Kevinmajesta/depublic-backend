@@ -21,6 +21,7 @@ type AdminRepository interface {
 	DeleteAdmin(admin *entity.Admin) (bool, error)
 	SaveVerifCode(userID uuid.UUID, resetCode string) error
 	UpdateAdminJwtToken(userID uuid.UUID, token string, expiresAt time.Time) error
+	CheckUserExists(id uuid.UUID) (bool, error)
 }
 
 type adminRepository struct {
@@ -82,6 +83,14 @@ func (r *adminRepository) CreateAdmin(admin *entity.Admin) (*entity.Admin, error
 		return admin, err
 	}
 	return admin, nil
+}
+
+func (r *adminRepository) CheckUserExists(id uuid.UUID) (bool, error) {
+	var count int64
+	if err := r.db.Model(&entity.Admin{}).Where("user_id = ?", id).Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }
 
 func (r *adminRepository) UpdateAdmin(admin *entity.Admin) (*entity.Admin, error) {
