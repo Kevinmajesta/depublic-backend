@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS users (
     reset_code VARCHAR(255),
     reset_code_expires_at TIMESTAMPTZ,
     verification BOOLEAN DEFAULT false,
-    verification_code VARCHAR(255)
+    verification_code VARCHAR(255),
     jwt_token VARCHAR(255),
     jwt_token_expires_at TIMESTAMPTZ
 );
