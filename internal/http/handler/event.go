@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Kevinmajesta/depublic-backend/internal/entity"
@@ -26,56 +27,30 @@ func NewEventHandler(eventService service.EventService) EventHandler {
 }
 
 // TODO ADD EVENT
-// func (h *EventHandler) AddEvent(c echo.Context) error {
-// 	input := binder.EventAddRequest{}
-
-// 	if err := c.Bind(&input); err != nil {
-// 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Wrong Input!"))
-// 	}
-
-// 	newEvent := entity.NewEvent(
-// 		input.CategoryID,
-// 		input.TitleEvent,
-// 		input.DateEvent,
-// 		input.PriceEvent,
-// 		input.CityEvent,
-// 		input.AddressEvent,
-// 		input.QtyEvent,
-// 		input.DescriptionEvent,
-// 		input.ImageURL,
-// 	)
-// 	event, err := h.eventService.AddEvent(newEvent)
-// 	if err != nil {
-// 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
-// 	}
-
-// 	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Add Event Success!", event))
-// }
-
-// TRY/ERROR (Success)
-// ADD FILE IMAGE
 func (h *EventHandler) AddEvent(c echo.Context) error {
 	req := new(binder.EventAddRequest)
 	if err := c.Bind(req); err != nil {
 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Failed to bind request"))
 	}
 
-	// Validate check nil request error
-	// if err := c.Validate(req); err != nil {
-	// 	return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Validation failed"))
-	// }
-
-	// Try/Error (Error) For check nil input
-	// if req.CategoryID == uuid.Nil || req.TitleEvent == "" || req.DateEvent == "" ||
-	// 	req.PriceEvent == 0 || req.CityEvent == "" || req.AddressEvent == "" ||
-	// 	req.QtyEvent == 0 || req.DescriptionEvent == "" || req.Image == nil {
-	// 	return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Can not be empty"))
-	// }
+	// Validate check for empty fields
+	if req.CategoryID == uuid.Nil || req.TitleEvent == "" || req.DateEvent == "" ||
+		req.PriceEvent == 0 || req.CityEvent == "" || req.AddressEvent == "" ||
+		req.QtyEvent == 0 || req.DescriptionEvent == "" {
+		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Cannot be empty"))
+	}
 
 	file, err := c.FormFile("image")
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Failed to retrieve image"))
 	}
+
+	// Check image format
+	chckFormat := strings.ToLower(filepath.Ext(file.Filename))
+	if chckFormat != ".jpg" && chckFormat != ".jpeg" && chckFormat != ".png" {
+		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Invalid image format. Only jpg, jpeg, and png are allowed"))
+	}
+
 	src, err := file.Open()
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, "Failed to open image"))
@@ -142,9 +117,22 @@ func (h *EventHandler) UpdateEvent(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Failed to bind request"))
 	}
 
+	// Validate check for empty fields
+	if req.CategoryID == uuid.Nil || req.TitleEvent == "" || req.DateEvent == "" ||
+		req.PriceEvent == 0 || req.CityEvent == "" || req.AddressEvent == "" ||
+		req.QtyEvent == 0 || req.DescriptionEvent == "" {
+		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Cannot be empty"))
+	}
+
 	file, err := c.FormFile("image")
 	var imageURL string
 	if err == nil {
+		// Check image format
+		chckFormat := strings.ToLower(filepath.Ext(file.Filename))
+		if chckFormat != ".jpg" && chckFormat != ".jpeg" && chckFormat != ".png" {
+			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Invalid image format. Only jpg, jpeg, and png are allowed"))
+		}
+
 		src, err := file.Open()
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, "Failed to open image"))
@@ -235,13 +223,14 @@ func (h *EventHandler) SearchEvents(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
+	// Check if insert is empty
 	if title == "" {
 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Name required"))
 	}
 	// Check if title is not available
-	// if title != "title_event" {
-	// 	return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Event not found"))
-	// }
+	if len(events) == 0 {
+		return c.JSON(http.StatusNotFound, response.ErrorResponse(http.StatusNotFound, "Event not found"))
+	}
 	return c.JSON(http.StatusOK, events)
 }
 
@@ -310,10 +299,17 @@ func (h *EventHandler) FilterEvents(c echo.Context) error {
 
 func (h *EventHandler) SortEvents(c echo.Context) error {
 	sortBy := c.QueryParam("sort_by")
+	// if sortBy == ";" {
+	// 	return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Wrong sort command"))
+	// }
+	// Check if input sort is empty
 	if sortBy == "" {
-		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sort criteria required"))
+		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Wrong sort command"))
 	}
-
+	// Check if input sort not spesificable
+	if sortBy != "terbaru" && sortBy != "termahal" && sortBy != "termurah" && sortBy != "terdekat" {
+		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Wrong sort command"))
+	}
 	events, err := h.eventService.SortEvents(sortBy)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, err.Error()))

@@ -12,6 +12,7 @@ type NotificationService interface {
 	GetUserNotificationsNoRead(userID uuid.UUID) ([]*entity.Notification, error)
 	CreateNotification(notification *entity.Notification) error
 	MarkNotificationAsRead(notificationID uuid.UUID) error
+	CheckUserExists(id uuid.UUID) (bool, error)
 }
 
 type notificationService struct {
@@ -29,6 +30,10 @@ func NewNotificationService(notificationRepo repository.NotificationRepository, 
 	}
 }
 
+func (s *notificationService) CheckUserExists(id uuid.UUID) (bool, error) {
+	return s.notificationRepo.CheckUserExists(id)
+}
+
 func (s *notificationService) GetUserNotificationsNoRead(userID uuid.UUID) ([]*entity.Notification, error) {
 	return s.notificationRepo.GetUserNotificationsNoRead(userID)
 }
@@ -42,7 +47,6 @@ func (s *notificationService) CreateNotification(notification *entity.Notificati
 	if err != nil {
 		return err
 	}
-	
 
 	for _, userID := range userIds {
 		// Buat salinan notifikasi untuk setiap pengguna

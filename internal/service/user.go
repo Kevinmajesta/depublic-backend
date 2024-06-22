@@ -26,6 +26,7 @@ type UserService interface {
 	EmailExists(email string) bool
 	GetUserProfileByID(userID string) (*entity.User, error)
 	VerifUser(resetCode string) error
+	CheckUserExists(id uuid.UUID) (bool, error)
 	// GetCart(UserId uuid.UUID) (binder.GetCartResponse, error)
 }
 
@@ -65,7 +66,7 @@ func (s *userService) LoginUser(email string, password string) (string, error) {
 	}
 
 	// Lanjutkan dengan pembuatan token dan logika lainnya
-	expiredTime := time.Now().Local().Add(1 * time.Hour)
+	expiredTime := time.Now().Local().Add(24 * time.Hour)
 
 	location, err := time.LoadLocation("Asia/Jakarta")
 	if err != nil {
@@ -134,14 +135,14 @@ func (s *userService) CreateUser(user *entity.User) (*entity.User, error) {
 	}
 
 	emailAddr := newUser.Email
-	err = s.emailSender.SendWelcomeEmail(emailAddr, "")
+	err = s.emailSender.SendWelcomeEmail(emailAddr, newUser.Fullname, "")
 
 	if err != nil {
 		return nil, err
 	}
 
 	resetCode := generateResetCode()
-	err = s.emailSender.SendVerificationEmail(newUser.Email, resetCode)
+	err = s.emailSender.SendVerificationEmail(newUser.Email, newUser.Fullname, resetCode)
 	if err != nil {
 		return nil, err
 	}
@@ -162,6 +163,10 @@ func (s *userService) CreateUser(user *entity.User) (*entity.User, error) {
 	}
 
 	return newUser, nil
+}
+
+func (s *userService) CheckUserExists(id uuid.UUID) (bool, error) {
+	return s.userRepository.CheckUserExists(id)
 }
 
 func (s *userService) UpdateUser(user *entity.User) (*entity.User, error) {
@@ -201,7 +206,7 @@ func (s *userService) UpdateUser(user *entity.User) (*entity.User, error) {
 		return nil, err
 	}
 
-	return s.userRepository.UpdateUser(user)
+	return updatedUser, nil
 }
 
 func (s *userService) DeleteUser(user_Id uuid.UUID) (bool, error) {
@@ -227,7 +232,7 @@ func (s *userService) RequestPasswordReset(email string) error {
 		return errors.New("failed to save reset code")
 	}
 
-	return s.emailSender.SendResetPasswordEmail(user.Email, resetCode)
+	return s.emailSender.SendResetPasswordEmail(user.Email, user.Fullname, resetCode)
 }
 
 func (s *userService) ResetPassword(resetCode string, newPassword string) error {

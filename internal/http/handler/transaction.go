@@ -98,7 +98,7 @@ func (h *TransactionHandler) CreateTransaction(c echo.Context) error {
 	}
 
 	if userdata.User_id == "" {
-		return c.JSON(http.StatusFound, response.ErrorResponse(http.StatusFound, "Sorry! We found User no data"))
+		return c.JSON(http.StatusFound, response.ErrorResponse(http.StatusFound, "Sorry! We found no data"))
 	}
 
 	if userdata.Role == "user" {
@@ -272,7 +272,7 @@ func (h *TransactionHandler) CheckPayTransaction(c echo.Context) error {
 			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
 		}
 		if transaction.Transactions_id == "" {
-			return c.JSON(http.StatusFound, response.ErrorResponse(http.StatusFound, "Sorry! We found User no data"))
+			return c.JSON(http.StatusFound, response.ErrorResponse(http.StatusFound, "Sorry! We found no data"))
 		}
 		// transactions_id_checkpay := uuid.MustParse(input.Transactions_id)
 		transactions_id_checkpay := transactions_id.String()
@@ -402,24 +402,26 @@ func (h *TransactionHandler) FindAllTransaction(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "ada kesalahan input"))
 	}
 
-	// if input.Transactions_id == "" {
-	// 	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Success Get All Transaction", nil))
-	// } else if input.User_id == "" {
-	// 	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Success Get All Transaction", nil))
-	// }
-
 	if input.Key == "trx" {
-		trx_id := uuid.MustParse(input.Transactions_id)
 
-		trxdata, err := h.transactionService.FindTrxByID(trx_id)
-
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
+		if input.Transactions_id == "" {
+			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sorry! Colum empty"))
 		}
-		if trxdata.Transactions_id == "" {
-			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Data Not Found"))
+		if isValidUUID(input.Transactions_id) {
+			trx_id := uuid.MustParse(input.Transactions_id)
+
+			trxdata, err := h.transactionService.FindTrxByID(trx_id)
+
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
+			}
+			if trxdata.Transactions_id == "" {
+				return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Data Not Found"))
+			} else {
+				return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Success menampilkan data Transaction", trxdata))
+			}
 		} else {
-			return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Success menampilkan data Transaction", trxdata))
+			return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sorry! not UUID"))
 		}
 	}
 	if input.Key == "trx_user" {

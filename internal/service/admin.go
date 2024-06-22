@@ -21,6 +21,7 @@ type AdminService interface {
 	UpdateAdmin(admin *entity.Admin) (*entity.Admin, error)
 	DeleteAdmin(admin uuid.UUID) (bool, error)
 	EmailExists(email string) bool
+	CheckUserExists(id uuid.UUID) (bool, error)
 }
 
 type adminService struct {
@@ -55,7 +56,7 @@ func (s *adminService) LoginAdmin(email string, password string) (string, error)
 		return "", errors.New("wrong input email/password")
 	}
 
-	expiredTime := time.Now().Local().Add(1 * time.Hour)
+	expiredTime := time.Now().Local().Add(24 * time.Hour)
 
 	location, err := time.LoadLocation("Asia/Jakarta")
 	if err != nil {
@@ -132,14 +133,14 @@ func (s *adminService) CreateAdmin(admin *entity.Admin) (*entity.Admin, error) {
 		return nil, err
 	}
 	emailAddr := newAdmin.Email
-	err = s.emailSender.SendWelcomeEmail(emailAddr, "")
+	err = s.emailSender.SendWelcomeEmail(emailAddr, newAdmin.Fullname, "")
 
 	if err != nil {
 		return nil, err
 	}
 
 	resetCode := generateResetCode()
-	err = s.emailSender.SendVerificationEmail(newAdmin.Email, resetCode)
+	err = s.emailSender.SendVerificationEmail(newAdmin.Email, newAdmin.Fullname, resetCode)
 	if err != nil {
 		return nil, err
 	}
@@ -160,6 +161,10 @@ func (s *adminService) CreateAdmin(admin *entity.Admin) (*entity.Admin, error) {
 	}
 
 	return newAdmin, nil
+}
+
+func (s *adminService) CheckUserExists(id uuid.UUID) (bool, error) {
+	return s.adminRepository.CheckUserExists(id)
 }
 
 func (s *adminService) UpdateAdmin(admin *entity.Admin) (*entity.Admin, error) {
