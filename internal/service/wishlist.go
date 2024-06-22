@@ -10,6 +10,7 @@ import (
 
 type WishlistService interface {
 	GetAllWishlist() ([]entity.Wishlist, error)
+	GetWishlistByUserId(UserId uuid.UUID) (*entity.Wishlist, error)
 	AddWishlist(wishlist *entity.Wishlist) (*entity.Wishlist, error)
 	RemoveWishlist(EventId, UserId uuid.UUID) (*entity.Wishlist, error)
 }
@@ -31,6 +32,20 @@ func (s *wishlistService) GetAllWishlist() ([]entity.Wishlist, error) {
 		return nil, err
 	}
 	return wishlists, nil
+}
+
+func (s *wishlistService) GetWishlistByUserId(UserId uuid.UUID) (*entity.Wishlist, error) {
+	eventAdd, err := s.wishlistRepository.CheckEventAdd(UserId)
+	if err != nil {
+		return nil, err
+	}
+
+	//check if user doesn't have an event in wishlist
+	if eventAdd == false {
+		return nil, errors.New("this user doesn't have any events in wishlist")
+	}
+
+	return s.wishlistRepository.GetWishlistByUserId(UserId)
 }
 
 func (s *wishlistService) AddWishlist(wishlist *entity.Wishlist) (*entity.Wishlist, error) {
