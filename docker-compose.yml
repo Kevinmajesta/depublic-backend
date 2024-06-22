@@ -13,7 +13,7 @@ services:
     environment:
       ENV: "dev"
       PORT: "8080"
-      POSTGRES_HOST: "db"          # ganti localhost dengan db
+      POSTGRES_HOST: "localhost"          # ganti localhost dengan db
       POSTGRES_PORT: "5432"
       POSTGRES_USER: "depublic"
       POSTGRES_PASSWORD: "depublic"
