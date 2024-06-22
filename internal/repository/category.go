@@ -78,10 +78,11 @@ func (r *categoryRepository) GetCategoryByID(categoryID uuid.UUID) (*entity.Even
 // 	return &category, nil
 // }
 
+// Find Category by name
 func (r *categoryRepository) GetCategoryByName(categoryName string) (*entity.EventCategories, error) {
 	var category entity.EventCategories
 	query := r.db
-	if err := query.Where("name_categories = ?", categoryName).First(&category).Error; err != nil {
+	if err := query.Where("LOWER(name_categories) LIKE LOWER(?)", "%"+categoryName+"%").First(&category).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil // Return nil if no category found
 		}
@@ -95,7 +96,7 @@ func (r *categoryRepository) UpdateCategoryByID(category *entity.EventCategories
 	// Find the existing event by ID
 	var existingCategory entity.EventCategories
 	query := r.db
-	if err := query.Find(&existingCategory, "event_categories_id = ?", category.EventCategoriesID).Error; err != nil {
+	if err := query.Find(&existingCategory, "event_category_id = ?", category.EventCategoriesID).Error; err != nil {
 		return nil, err
 	}
 
@@ -135,6 +136,7 @@ func (r *categoryRepository) CheckCategoryByName(categoryName string) (*entity.E
 	return &category, nil
 }
 
+// Check Category By Id
 func (r *categoryRepository) CheckCategoryById(categoryID string) (*entity.EventCategories, error) {
 	var category entity.EventCategories
 	query := r.db
