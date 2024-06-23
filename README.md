@@ -181,19 +181,16 @@ Detail for Flow Application
 
 ---
 
-Lisensi MIT
+## Lisensi MIT <img src="http://creativecommons.or.id/uploads/nc.large.png" alt="NonCommercial" width="20">
 
----
+**Hak Cipta (c) 2024 Kelompok 4 Golang with MIKTI Mitra MSIB**
 
-Hak Cipta (c) 2024 Kelompok 4 Golang with MIKTI Mitra MSIB
-
-Dilarang menjual atau mendistribusikan perangkat lunak ini untuk tujuan komersial tanpa persetujuan tertulis dari kami.
+**Dilarang menjual atau mendistribusikan perangkat lunak** ini untuk tujuan komersial tanpa persetujuan tertulis dari kami.
 Dengan ini, izin diberikan, tanpa biaya, kepada siapa pun yang memperoleh salinan perangkat lunak ini dan dokumentasi 
 terkait (disebut sebagai "Perangkat Lunak"),untuk menggunakan, menyalin, memodifikasi, dan mendistribusikan Perangkat Lunak,
 dengan syarat pemberitahuan hak cipta di atas dan pemberitahuan ini disertakan dalam semua salinan atau bagian penting dari Perangkat Lunak.
 
-PERANGKAT LUNAK INI DISEDIAKAN "SEBAGAIMANA ADANYA", TANPA JAMINAN APAPUN, BAIK TERSURAT MAUPUN TERSIRAT, 
-TERMASUK NAMUN TIDAK TERBATAS PADA JAMINAN DIPERDAGANGKAN, KESESUAIAN UNTUK TUJUAN TERTENTU, DAN NON-PELANGGARAN. 
-DALAM KEADAAN APAPUN, PENULIS ATAU PEMEGANG HAK CIPTA TIDAK BERTANGGUNG JAWAB ATAS KLAIM, KERUSAKAN, ATAU KEWAJIBAN LAINNYA, 
-BAIK DALAM TINDAKAN KONTRAK, TORT, ATAU LAINNYA, YANG TIMBUL DARI, KELUAR DARI, ATAU BERHUBUNGAN DENGAN PERANGKAT LUNAK ATAU
-PENGGUNAAN ATAU TRANSAKSI LAIN DALAM PERANGKAT LUNAK.
+perangkat lunak ini disediakan "sebagaimana adanya", tanpa jaminan apapun, baik tersurat maupun tersirat, termasuk namun tidak terbatas
+pada jaminan diperdagangkan, kesesuaian untuk tujuan tertentu, dan non-pelanggaran. dalam keadaan apapun, penulis atau pemegang hak cipta
+tidak bertanggung jawab atas klaim, kerusakan, atau kewajiban lainnya, baik dalam tindakan kontrak, tort, atau lainnya, yang timbul dari,
+keluar dari, atau berhubungan dengan perangkat lunak atau penggunaan atau transaksi lain dalam perangkat lunak.
