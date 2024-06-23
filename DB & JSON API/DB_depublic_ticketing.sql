@@ -12,7 +12,7 @@
  Target Server Version : 160003 (160003)
  File Encoding         : 65001
 
- Date: 23/06/2024 17:39:54
+ Date: 23/06/2024 19:52:05
 */
 
 
@@ -95,7 +95,7 @@ INSERT INTO "public"."events" VALUES ('20e2ffea-2948-4598-858c-515832a5710b', '8
 -- ----------------------------
 DROP TABLE IF EXISTS "public"."notifications";
 CREATE TABLE "public"."notifications" (
-  "notification_id" uuid NOT NULL,
+  "notification_id" uuid NOT NULL DEFAULT gen_random_uuid(),
   "user_id" uuid,
   "type" text COLLATE "pg_catalog"."default",
   "message" text COLLATE "pg_catalog"."default",
@@ -109,6 +109,32 @@ CREATE TABLE "public"."notifications" (
 -- ----------------------------
 -- Records of notifications
 -- ----------------------------
+INSERT INTO "public"."notifications" VALUES ('932a36ad-71e1-44d8-89b3-09676d396a85', '07b553ae-736f-4f5a-aaf7-343457cab5bd', 'Registration', 'Admin registration successful', 'f', '2024-06-23 12:50:51.740602+00', '2024-06-23 12:50:51.740602+00', NULL);
+INSERT INTO "public"."notifications" VALUES ('2c692f31-a201-40ad-8510-824001803184', '665e3bd5-8351-f89f-bea8-975c110266bb', 'Registration', 'Admin registration successful', 'f', '2024-06-23 12:50:51.752612+00', '2024-06-23 12:50:51.752612+00', NULL);
+INSERT INTO "public"."notifications" VALUES ('0d8c7eb9-5374-42f9-933a-311fdf4ce491', '8095aa2c-df50-4f48-9ea3-fcdcd262ad41', 'Registration', 'Admin registration successful', 'f', '2024-06-23 12:50:51.755189+00', '2024-06-23 12:50:51.755189+00', NULL);
+INSERT INTO "public"."notifications" VALUES ('69efb8c5-bd71-4bed-a78a-46a0d05e6763', '7cfb15ce-1b77-8ae3-45d0-b7b43a957aff', 'Registration', 'Admin registration successful', 'f', '2024-06-23 12:50:51.757441+00', '2024-06-23 12:50:51.757441+00', NULL);
+INSERT INTO "public"."notifications" VALUES ('10ba9cb5-e9a0-4b1b-beff-ab3f2c6c58a0', 'b6eb5c2c-92db-5953-4811-31c63f063ba8', 'Registration', 'Admin registration successful', 'f', '2024-06-23 12:50:51.761218+00', '2024-06-23 12:50:51.761218+00', NULL);
+INSERT INTO "public"."notifications" VALUES ('3f4cac5b-510f-46ea-9e0d-08519ec6e498', '53e03434-b055-43c9-977b-ff2a57c47ac1', 'Registration', 'Admin registration successful', 'f', '2024-06-23 12:50:51.763767+00', '2024-06-23 12:50:51.763767+00', NULL);
+INSERT INTO "public"."notifications" VALUES ('39351352-0234-4434-befa-98d2742ab6a5', '10a3343f-6646-ada1-b88c-b8c71d459b5a', 'Registration', 'Admin registration successful', 'f', '2024-06-23 12:50:51.766284+00', '2024-06-23 12:50:51.766284+00', NULL);
+INSERT INTO "public"."notifications" VALUES ('7b16f17d-bb5b-4eff-813d-01f3fb16d27f', '192f7a13-8439-44c0-bcbe-f59a2e835a0f', 'Registration', 'Admin registration successful', 'f', '2024-06-23 12:50:51.769865+00', '2024-06-23 12:50:51.769865+00', NULL);
+INSERT INTO "public"."notifications" VALUES ('cadc110d-1af3-4b12-ab99-b031edb7d6d3', '732ea7b8-9fd4-446d-8e15-6d7fa3e70153', 'Registration', 'Admin registration successful', 'f', '2024-06-23 12:50:51.771973+00', '2024-06-23 12:50:51.771973+00', NULL);
+INSERT INTO "public"."notifications" VALUES ('103f2e46-1f78-4ae8-a5eb-0cb71309b131', '6dbf3399-5d22-4d12-ba6c-e1d9b9a303b8', 'Registration', 'Admin registration successful', 'f', '2024-06-23 12:50:51.774033+00', '2024-06-23 12:50:51.774033+00', NULL);
+INSERT INTO "public"."notifications" VALUES ('f8dde6c2-41b6-498d-88da-cb3c7a10bcfb', '21b243aa-9c8a-4cdd-8b13-3c815d583a50', 'Registration', 'Admin registration successful', 'f', '2024-06-23 12:50:51.776838+00', '2024-06-23 12:50:51.776838+00', NULL);
+INSERT INTO "public"."notifications" VALUES ('f4b6a70e-c9e7-429c-bce0-6941756ea020', 'f3e634fc-0139-4bd7-9350-39bc08cf4b55', 'Registration', 'Admin registration successful', 'f', '2024-06-23 12:50:51.77928+00', '2024-06-23 12:50:51.77928+00', NULL);
+INSERT INTO "public"."notifications" VALUES ('af82ec7f-0672-4f0c-9cae-182cffd72345', 'd55b9476-8853-4116-96d9-ed4056e699bc', 'Registration', 'Admin registration successful', 'f', '2024-06-23 12:50:51.78147+00', '2024-06-23 12:50:51.78147+00', NULL);
+INSERT INTO "public"."notifications" VALUES ('fee20060-e811-497e-b289-5abc0ea88f89', '07b553ae-736f-4f5a-aaf7-343457cab5bd', 'Registration', 'User registration successful', 'f', '2024-06-23 12:50:53.471619+00', '2024-06-23 12:50:53.471619+00', NULL);
+INSERT INTO "public"."notifications" VALUES ('12845be9-fb84-4363-a547-0210422dcedb', '665e3bd5-8351-f89f-bea8-975c110266bb', 'Registration', 'User registration successful', 'f', '2024-06-23 12:50:53.475012+00', '2024-06-23 12:50:53.475012+00', NULL);
+INSERT INTO "public"."notifications" VALUES ('198d7ea6-adeb-4500-8008-7451f96bfb61', '8095aa2c-df50-4f48-9ea3-fcdcd262ad41', 'Registration', 'User registration successful', 'f', '2024-06-23 12:50:53.477014+00', '2024-06-23 12:50:53.477014+00', NULL);
+INSERT INTO "public"."notifications" VALUES ('c473c8bf-db10-420d-a1ef-257472fe0b3a', '7cfb15ce-1b77-8ae3-45d0-b7b43a957aff', 'Registration', 'User registration successful', 'f', '2024-06-23 12:50:53.479237+00', '2024-06-23 12:50:53.479237+00', NULL);
+INSERT INTO "public"."notifications" VALUES ('7334eda4-51ad-4c0c-8e65-0ba52257913b', 'b6eb5c2c-92db-5953-4811-31c63f063ba8', 'Registration', 'User registration successful', 'f', '2024-06-23 12:50:53.482236+00', '2024-06-23 12:50:53.482236+00', NULL);
+INSERT INTO "public"."notifications" VALUES ('130eff5e-0805-4bf6-878c-d29391faad18', '53e03434-b055-43c9-977b-ff2a57c47ac1', 'Registration', 'User registration successful', 'f', '2024-06-23 12:50:53.484275+00', '2024-06-23 12:50:53.484275+00', NULL);
+INSERT INTO "public"."notifications" VALUES ('000cbe68-ab54-4429-b65a-29e82651460c', '10a3343f-6646-ada1-b88c-b8c71d459b5a', 'Registration', 'User registration successful', 'f', '2024-06-23 12:50:53.486464+00', '2024-06-23 12:50:53.486464+00', NULL);
+INSERT INTO "public"."notifications" VALUES ('0e8eb078-849d-4e9d-bf08-fae1e8d65d2f', '192f7a13-8439-44c0-bcbe-f59a2e835a0f', 'Registration', 'User registration successful', 'f', '2024-06-23 12:50:53.488998+00', '2024-06-23 12:50:53.488998+00', NULL);
+INSERT INTO "public"."notifications" VALUES ('213cf32e-631e-4b4d-96ad-5d05bab647eb', '732ea7b8-9fd4-446d-8e15-6d7fa3e70153', 'Registration', 'User registration successful', 'f', '2024-06-23 12:50:53.491734+00', '2024-06-23 12:50:53.491734+00', NULL);
+INSERT INTO "public"."notifications" VALUES ('60f60815-f886-4801-9547-3a0be85ffa54', '6dbf3399-5d22-4d12-ba6c-e1d9b9a303b8', 'Registration', 'User registration successful', 'f', '2024-06-23 12:50:53.493817+00', '2024-06-23 12:50:53.493817+00', NULL);
+INSERT INTO "public"."notifications" VALUES ('516a5256-cb88-45bd-8486-34defc1909b8', '21b243aa-9c8a-4cdd-8b13-3c815d583a50', 'Registration', 'User registration successful', 'f', '2024-06-23 12:50:53.496271+00', '2024-06-23 12:50:53.496271+00', NULL);
+INSERT INTO "public"."notifications" VALUES ('3ed36cc0-0f49-47a0-ac14-3d967e96afc4', 'd55b9476-8853-4116-96d9-ed4056e699bc', 'Registration', 'User registration successful', 'f', '2024-06-23 12:50:53.500259+00', '2024-06-23 12:50:53.500259+00', NULL);
+INSERT INTO "public"."notifications" VALUES ('a33fdca5-5a46-4d46-acc8-6fb9dd60cde8', 'f3e634fc-0139-4bd7-9350-39bc08cf4b55', 'Registration', 'User registration successful', 'f', '2024-06-23 12:50:53.502828+00', '2024-06-23 12:50:53.502828+00', NULL);
 
 -- ----------------------------
 -- Table structure for schema_migrations
@@ -568,6 +594,8 @@ INSERT INTO "public"."users" VALUES ('192f7a13-8439-44c0-bcbe-f59a2e835a0f', 'ad
 INSERT INTO "public"."users" VALUES ('732ea7b8-9fd4-446d-8e15-6d7fa3e70153', 'Robert Ramirez', 'roramirez@icloud.com', 'BkLFxzlO1O', '81298790174', 'user', 't', '2013-07-22 11:48:47+00', '2007-02-12 07:59:50+00', '2000-11-10 06:57:54+00', 't', NULL, NULL, NULL, NULL, NULL);
 INSERT INTO "public"."users" VALUES ('6dbf3399-5d22-4d12-ba6c-e1d9b9a303b8', 'Surya Apandi', 'surya.apandi20@gmail.co', '$2a$10$q9m5F3WfBvEO4z5R16zc0erob2Vi5LJ1Wm.GUx/nnJhMUtlV6peKK', '081298790174', 'user', 't', '2024-06-21 07:03:55.788993+00', '2024-06-21 07:04:09.400585+00', NULL, 'f', '548717', '', '0001-01-01', NULL, NULL);
 INSERT INTO "public"."users" VALUES ('21b243aa-9c8a-4cdd-8b13-3c815d583a50', 'admin', 'surya.apandi28@gmail.com', '$2a$10$.5nY7JvVdK2ryDovOc2LtOgqIDRf8r5sGQ/hKwVEAzuhu4oo3JuFi', '', 'admin', 't', '2024-06-20 17:05:29.620532+00', '2024-06-21 15:53:30.385988+00', NULL, 'f', '904343', NULL, NULL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjIxYjI0M2FhLTljOGEtNGNkZC04YjEzLTNjODE1ZDU4M2E1MCIsImVtYWlsIjoic3VyeWEuYXBhbmRpMjhAZ21haWwuY29tIiwicm9sZSI6ImFkbWluIiwiaXNzIjoiRGVwdWJsaWMiLCJleHAiOjE3MTg5ODg4MTB9.ZOEPUOCDYL0O5HKRpES6fMKQIknosN4JUHUaLsWiJ48', '2024-06-21 16:53:30.363027+00');
+INSERT INTO "public"."users" VALUES ('d55b9476-8853-4116-96d9-ed4056e699bc', 'admin', 'ganta.kon1@gmail.com', '$2a$10$XY0DZxNiH5PG1O.T.aFI.uZy7VfjMuj3EHMsfVCVmAT1S5pHhCQ5S', '', 'admin', 't', '2024-06-23 12:50:34.549785+00', '2024-06-23 12:50:51.734222+00', NULL, 'f', '349746', NULL, NULL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQ1NWI5NDc2LTg4NTMtNDExNi05NmQ5LWVkNDA1NmU2OTliYyIsImVtYWlsIjoiZ2FudGEua29uMUBnbWFpbC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpc3MiOiJEZXB1YmxpYyIsImV4cCI6MTcxOTIzMzQ0M30.Zo-LSbGNl1Kiz9OD-GySOdbZa2BV1A-4USHTOvlX0Bc', '2024-06-24 12:50:43.416503+00');
+INSERT INTO "public"."users" VALUES ('f3e634fc-0139-4bd7-9350-39bc08cf4b55', 'Kevin Majesta', 'kevinivano1205@gmail.com', '$2a$10$mL3a9r.znhX9RB8Bx5lVqu3Kr8Vyfs2Zvuzj1WpDK5pW8iSUDziW2', '1290378129', 'user', 't', '2024-06-23 12:50:37.952984+00', '2024-06-23 12:50:53.467156+00', NULL, 'f', '074442', '', '0001-01-01', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImYzZTYzNGZjLTAxMzktNGJkNy05MzUwLTM5YmMwOGNmNGI1NSIsImVtYWlsIjoia2V2aW5pdmFubzEyMDVAZ21haWwuY29tIiwicm9sZSI6InVzZXIiLCJpc3MiOiJEZXB1YmxpYyIsImV4cCI6MTcxOTIzMzQ0MX0.gyU38N6buy6yjB_pO93S3Fv-SdIE3BbYHY7TLDpsJU0', '2024-06-24 12:50:41.100517+00');
 
 -- ----------------------------
 -- Table structure for wishlists
