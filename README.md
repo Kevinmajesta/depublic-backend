@@ -13,16 +13,14 @@ This platform is a marketplace for buying and selling concert and event tickets,
 Depublic build by [Go](https://go.dev/dl/) Go 1.13+ to run.
 
 1. Clone Repository
-
-```sh
 By use terminal/cmd
+```sh
 git clone https://github.com/Kevinmajesta/depublic-backend.git
 ```
 
 2. Open Repository
-
-```sh
 By use terminal/cmd
+```sh
 cd depublic-backend
 ```
 
