@@ -15,7 +15,6 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 )
 
@@ -54,6 +53,15 @@ func isValidUUID(u string) bool {
 	return err == nil
 }
 
+func (h *TransactionHandler) claimsjwtdata(c echo.Context) error {
+	user, ok := c.Get("user").(*jwt.Token)
+	if !ok {
+		return c.JSON(http.StatusUnauthorized, response.ErrorResponse(http.StatusBadRequest, "you must login first"))
+	}
+	claimsjwt := user.Claims.(*token.JwtCustomClaims)
+	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Success Create Data New Transaction", claimsjwt))
+}
+
 func NewTransactionHandler(transactionService service.TransactionService, tokenUseCase token.TokenUseCase) TransactionHandler {
 	return TransactionHandler{transactionService: transactionService, tokenUseCase: tokenUseCase}
 
@@ -90,7 +98,7 @@ func (h *TransactionHandler) CreateTransaction(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
 	}
 
-	if eventdata.Event_id.String() == "" {
+	if uuid.UUID(eventdata.Event_id) == uuid.Nil {
 		return c.JSON(http.StatusFound, response.ErrorResponse(http.StatusFound, "Sorry! We found Event no data"))
 	}
 
@@ -105,8 +113,12 @@ func (h *TransactionHandler) CreateTransaction(c echo.Context) error {
 	if userdata.User_id == "" {
 		return c.JSON(http.StatusFound, response.ErrorResponse(http.StatusFound, "Sorry! We found no data"))
 	}
-
-	if userdata.Role == "user" {
+	user, ok := c.Get("user").(*jwt.Token)
+	if !ok {
+		return c.JSON(http.StatusUnauthorized, response.ErrorResponse(http.StatusBadRequest, "you must login first"))
+	}
+	claimsjwt := user.Claims.(*token.JwtCustomClaims)
+	if claimsjwt.Role == "user" {
 
 		qtytrx := cartdata.Qty
 		pricetrx := eventdata.Price_event
@@ -241,29 +253,21 @@ func (h *TransactionHandler) CreateTransaction(c echo.Context) error {
 		Pembayaran["PPN"] = ppn
 		Pembayaran["Amount"] = amount
 
-		fields := make(map[string]interface{})
+		trxpay := make(map[string]interface{})
 
-		fields["Transaction_ID"] = transaction.Transactions_id
-		fields["Transaction_Detail_ID"] = transactiondetail.Transaction_details_id
-		fields["Pembayaran"] = Pembayaran
+		trxpay["Transaction_ID"] = transaction.Transactions_id
+		trxpay["Transaction_Detail_ID"] = transactiondetail.Transaction_details_id
+		trxpay["Pembayaran"] = Pembayaran
 
-		return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Success Create Data New Transaction", fields))
+		return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Success Create Data New Transaction", trxpay))
 
-	} else if userdata.Role == "admin" {
+	} else if claimsjwt.Role == "admin" {
 		return c.JSON(http.StatusForbidden, response.ErrorResponse(http.StatusForbidden, "Sorry! access denied"))
 	} else {
 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sorry! we cannot recognize your account"))
 	}
 }
 
-func JWTProtection(secretKey string) echo.MiddlewareFunc {
-	return echojwt.WithConfig(echojwt.Config{
-		NewClaimsFunc: func(c echo.Context) jwt.Claims {
-			return new(token.JwtCustomClaims)
-		},
-		SigningKey: []byte(secretKey),
-	})
-}
 func (h *TransactionHandler) CheckPayTransaction(c echo.Context) error {
 	var input binder.CheckTrxFindByIDRequest
 
@@ -403,6 +407,7 @@ func (h *TransactionHandler) CheckPayTransaction(c echo.Context) error {
 				fields["Status_Payment"] = checkpayreq["transaction_status"]
 				fields["Status_Transaksi"] = updatedTrx.Status
 				fields["Message"] = "Payment Success"
+				fields["payreq"] = checkpayreq
 
 				return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Success Check Pay", fields))
 			} else {
@@ -481,12 +486,18 @@ func (h *TransactionHandler) FindAllTransaction(c echo.Context) error {
 		}
 		if isValidUUID(input.User_id) {
 			User_id := uuid.MustParse(input.User_id)
-			valuser, err := h.transactionService.FindUserByID(User_id)
-			if err != nil {
-				return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
-			}
+			// valuser, err := h.transactionService.FindUserByID(User_id)
+			// if err != nil {
+			// 	return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
+			// }
 
-			if valuser.Role == "admin" {
+			user, ok := c.Get("user").(*jwt.Token)
+			if !ok {
+				return c.JSON(http.StatusUnauthorized, response.ErrorResponse(http.StatusBadRequest, "you must login first"))
+			}
+			claimsjwt := user.Claims.(*token.JwtCustomClaims)
+			if claimsjwt.Role == "admin" {
+
 				trxdatauser, err := h.transactionService.FindTrxrelationadminByID(User_id)
 				if err != nil {
 					return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
