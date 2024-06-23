@@ -56,6 +56,7 @@ func PublicRoutes(userHandler handler.UserHandler,
 			Path:    "/password-reset",
 			Handler: userHandler.ResetPassword,
 		},
+		//event
 		{
 			Method:  http.MethodPost,
 			Path:    "/event",
@@ -156,7 +157,7 @@ func PrivateRoutes(userHandler handler.UserHandler,
 	eventHandler handler.EventHandler, categoryHandler handler.CategoryHandler,
 	ticketHandler handler.TicketHandler) []*route.Route {
 	return []*route.Route{
-
+		//user
 		{
 			Method:  http.MethodPut,
 			Path:    "/users/:user_id",
@@ -171,11 +172,17 @@ func PrivateRoutes(userHandler handler.UserHandler,
 		},
 		{
 			Method:  http.MethodGet,
+			Path:    "/users/:user_id",
+			Handler: userHandler.GetUserProfile,
+			Roles:   allRoles,
+		},
+		//admin
+		{
+			Method:  http.MethodGet,
 			Path:    "/users",
 			Handler: adminHandler.FindAllUser,
 			Roles:   onlyAdmin,
 		},
-
 		{
 			Method:  http.MethodPut,
 			Path:    "/admins/:user_id",
@@ -188,14 +195,7 @@ func PrivateRoutes(userHandler handler.UserHandler,
 			Handler: adminHandler.DeleteAdmin,
 			Roles:   onlyAdmin,
 		},
-
-		{
-			Method:  http.MethodGet,
-			Path:    "/users/:user_id",
-			Handler: userHandler.GetUserProfile,
-			Roles:   allRoles,
-		},
-
+		//transaction
 		{
 			Method:  http.MethodPost,
 			Path:    "transaction/create",
@@ -214,6 +214,7 @@ func PrivateRoutes(userHandler handler.UserHandler,
 			Handler: transactionHandler.CheckPayTransaction,
 			Roles:   allRoles,
 		},
+		//wishlist
 		{
 			Method:  http.MethodGet,
 			Path:    "/wishlist",
@@ -238,6 +239,7 @@ func PrivateRoutes(userHandler handler.UserHandler,
 			Handler: wishlistHandler.RemoveWishlist,
 			Roles:   onlyUser,
 		},
+		//cart
 		{
 			Method:  http.MethodGet,
 			Path:    "/cart",
@@ -273,6 +275,7 @@ func PrivateRoutes(userHandler handler.UserHandler,
 			Path:    "/cart/:id",
 			Handler: cartHandler.RemoveCart,
 		},
+		//notification
 		{
 			Method:  http.MethodPost,
 			Path:    "/notification",
