@@ -70,8 +70,17 @@ func (h *AdminHandler) UpdateAdmin(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "there is an input error"))
 	}
 
-	id := uuid.MustParse(input.Admin_ID)
-
+	id, err := uuid.Parse(input.Admin_ID)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "invalid admin ID"))
+	}
+	exists, err := h.adminService.CheckUserExists(id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, "could not verify user existence"))
+	}
+	if !exists {
+		return c.JSON(http.StatusNotFound, response.ErrorResponse(http.StatusNotFound, "user ID does not exist"))
+	}
 	inputAdmin := entity.UpdateAdmin(id, input.Fullname, input.Email, input.Password, input.Role, input.Phone, input.Verification)
 
 	updatedAdmin, err := h.adminService.UpdateAdmin(inputAdmin)

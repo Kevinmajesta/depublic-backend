@@ -12,7 +12,6 @@ import (
 
 type TicketHandler struct {
 	ticketService service.TicketService
-	
 }
 
 func NewTicketHandler(ticketService service.TicketService) TicketHandler {
@@ -36,6 +35,13 @@ func (h *TicketHandler) FindTicketsByEventID(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "invalid event ID"))
 	}
+	exists, err := h.ticketService.CheckTicketExists(eventUUID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, "could not verify user existence"))
+	}
+	if !exists {
+		return c.JSON(http.StatusNotFound, response.ErrorResponse(http.StatusNotFound, "event ID does not exist"))
+	}
 	tickets, err := h.ticketService.FindTicketsByEventID(eventUUID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, err.Error()))
@@ -51,6 +57,13 @@ func (h *TicketHandler) FindTicketsByQRCode(c echo.Context) error {
 	QRCodeUUID, err := uuid.Parse(QRCodeParam)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "invalid QRCode"))
+	}
+	exists, err := h.ticketService.CheckTicketExists(QRCodeUUID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, "could not verify user existence"))
+	}
+	if !exists {
+		return c.JSON(http.StatusNotFound, response.ErrorResponse(http.StatusNotFound, "event ID does not exist"))
 	}
 	qrcodes, err := h.ticketService.FindTicketsByQRCode(QRCodeUUID)
 	if err != nil {

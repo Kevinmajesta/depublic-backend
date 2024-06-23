@@ -218,6 +218,12 @@ func PrivateRoutes(userHandler handler.UserHandler,
 			Method:  http.MethodGet,
 			Path:    "/wishlist",
 			Handler: wishlistHandler.GetAllWishlist,
+			Roles:   onlyAdmin,
+		},
+		{
+			Method:  http.MethodGet,
+			Path:    "/wishlist/:id",
+			Handler: wishlistHandler.GetWishlistByUserId,
 			Roles:   onlyUser,
 		},
 		{

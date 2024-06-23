@@ -246,7 +246,7 @@ func (r *eventRepository) FilterEvents(
 func (r *eventRepository) SortEvents(sortBy string) ([]entity.Events, error) {
 	wib, err := time.LoadLocation("Asia/Jakarta")
 	if err != nil {
-		panic(err) // Handle error appropriately in real use case
+		panic(err)
 	}
 
 	var events []entity.Events

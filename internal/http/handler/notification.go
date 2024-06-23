@@ -13,10 +13,11 @@ import (
 
 type NotificationHandler struct {
 	notificationService service.NotificationService
+	userService         service.UserService
 }
 
-func NewNotificationHandler(notificationService service.NotificationService) NotificationHandler {
-	return NotificationHandler{notificationService: notificationService}
+func NewNotificationHandler(notificationService service.NotificationService, userService service.UserService) NotificationHandler {
+	return NotificationHandler{notificationService: notificationService, userService: userService}
 }
 
 func (h *NotificationHandler) GetUserNotifications(c echo.Context) error {
@@ -29,6 +30,14 @@ func (h *NotificationHandler) GetUserNotifications(c echo.Context) error {
 	userID, err := uuid.Parse(input.UserId)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Invalid user ID"))
+	}
+
+	exists, err := h.notificationService.CheckUserExists(userID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, "could not verify user existence"))
+	}
+	if !exists {
+		return c.JSON(http.StatusNotFound, response.ErrorResponse(http.StatusNotFound, "user ID does not exist"))
 	}
 
 	notifications, err := h.notificationService.GetUserNotifications(userID)
@@ -54,6 +63,14 @@ func (h *NotificationHandler) GetUserNotificationNoRead(c echo.Context) error {
 	userID, err := uuid.Parse(input.UserId)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Invalid user ID"))
+	}
+
+	exists, err := h.notificationService.CheckUserExists(userID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, "could not verify user existence"))
+	}
+	if !exists {
+		return c.JSON(http.StatusNotFound, response.ErrorResponse(http.StatusNotFound, "user ID does not exist"))
 	}
 
 	notifications, err := h.notificationService.GetUserNotificationsNoRead(userID)

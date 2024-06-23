@@ -55,23 +55,35 @@ func (h *UserHandler) CreateUser(c echo.Context) error {
 }
 
 func (h *UserHandler) UpdateUser(c echo.Context) error {
-	var input binder.UserUpdateRequest
+    var input binder.UserUpdateRequest
 
-	if err := c.Bind(&input); err != nil {
-		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "there is an input error"))
-	}
+    if err := c.Bind(&input); err != nil {
+        return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "there is an input error"))
+    }
 
-	id := uuid.MustParse(input.User_ID)
+    id, err := uuid.Parse(input.User_ID)
+    if err != nil {
+        return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "invalid user ID"))
+    }
 
-	inputUser := entity.UpdateUser(id, input.Fullname, input.Email, input.Password, input.Phone, input.Role, input.Status, input.Verification)
+    exists, err := h.userService.CheckUserExists(id)
+    if err != nil {
+        return c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, "could not verify user existence"))
+    }
+    if !exists {
+        return c.JSON(http.StatusNotFound, response.ErrorResponse(http.StatusNotFound, "user ID does not exist"))
+    }
 
-	updatedUser, err := h.userService.UpdateUser(inputUser)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
-	}
+    inputUser := entity.UpdateUser(id, input.Fullname, input.Email, input.Password, input.Phone, input.Role, input.Status, input.Verification)
+    
+    updatedUser, err := h.userService.UpdateUser(inputUser)
+    if err != nil {
+        return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
+    }
 
-	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "success update user", updatedUser))
+    return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "success update user", updatedUser))
 }
+
 
 func (h *UserHandler) DeleteUser(c echo.Context) error {
 	var input binder.UserDeleteRequest

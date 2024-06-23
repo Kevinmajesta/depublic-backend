@@ -11,6 +11,8 @@ import (
 )
 
 type WishlistRepository interface {
+	GetWishlistByUserId(UserId uuid.UUID) (*entity.Wishlist, error)
+	CheckEventAdd(UserId uuid.UUID) (bool, error)
 	AddWishlist(wishlist *entity.Wishlist) (*entity.Wishlist, error)
 	GetWishlistByEventAndUser(EventId, UserId uuid.UUID) (*entity.Wishlist, error)
 	RemoveWishlist(EventId, UserId uuid.UUID) error
@@ -25,6 +27,27 @@ type wishlistRepository struct {
 
 func NewWishlistRepository(db *gorm.DB, cacheable cache.Cacheable) WishlistRepository {
 	return &wishlistRepository{db: db, cacheable: cacheable}
+}
+
+func (r *wishlistRepository) GetWishlistByUserId(UserId uuid.UUID) (*entity.Wishlist, error) {
+	wishlist := new(entity.Wishlist)
+
+	if err := r.db.Where("user_id = ?", UserId).Take(wishlist).Error; err != nil {
+		return wishlist, err
+	}
+	return wishlist, nil
+}
+
+func (r *wishlistRepository) CheckEventAdd(UserId uuid.UUID) (bool, error) {
+
+	var eventAdd int
+
+	err := r.db.Raw("SELECT COUNT(event_id) FROM wishlists WHERE user_id = ?", UserId).Scan(&eventAdd).Error
+	if err != nil {
+		return false, err
+	}
+
+	return eventAdd == 1, nil
 }
 
 func (r *wishlistRepository) AddWishlist(wishlist *entity.Wishlist) (*entity.Wishlist, error) {

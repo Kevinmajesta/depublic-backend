@@ -167,6 +167,9 @@ func (h *CategoryHandler) GetCategoryByParam(c echo.Context) error {
 		if err != nil {
 			return c.JSON(http.StatusNotFound, map[string]string{"error": "Event category not found!"})
 		}
+		if category == nil {
+			return c.JSON(http.StatusNotFound, map[string]string{"error": "Event category not found!"})
+		}
 
 		return c.JSON(http.StatusOK, category)
 	}
@@ -235,7 +238,7 @@ func (h *CategoryHandler) UpdateCategoryByID(c echo.Context) error {
 
 	existingCategory, err := h.categoryService.GetCategoryByID(categoryID)
 	if err != nil {
-		return c.JSON(http.StatusNotFound, response.ErrorResponse(http.StatusNotFound, "Event not found"))
+		return c.JSON(http.StatusNotFound, response.ErrorResponse(http.StatusNotFound, "Category not found"))
 	}
 
 	existingCategory.NameCategories = input.NameCategories
@@ -245,5 +248,5 @@ func (h *CategoryHandler) UpdateCategoryByID(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, err.Error()))
 	}
 
-	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Update Event Success!", updateCategory))
+	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Update Category Success!", updateCategory))
 }

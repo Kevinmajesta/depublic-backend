@@ -19,6 +19,22 @@ func NewWishlistHandler(wishlistService service.WishlistService) WishlistHandler
 	return WishlistHandler{wishlistService: wishlistService}
 }
 
+func (h *WishlistHandler) GetWishlistByUserId(c echo.Context) error {
+	input := binder.FindWishlistByUserIdRequest{}
+	if err := c.Bind(&input); err != nil {
+		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "there is an input error"))
+	}
+
+	userId := uuid.MustParse(input.UserId)
+
+	wishlist, err := h.wishlistService.GetWishlistByUserId(userId)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "successfully showed wishlist data by users", wishlist))
+}
+
 func (h *WishlistHandler) GetAllWishlist(c echo.Context) error {
 	wishlists, err := h.wishlistService.GetAllWishlist()
 	if err != nil {
