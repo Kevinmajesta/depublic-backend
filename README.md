@@ -167,7 +167,7 @@ Documentation for API can be get by :
 ```sh
 output\depublic-backend/depublic_project.postman_collection.json
 or
-https://github.com/Kevinmajesta/depublic-backend/blob/dev/depublic_project.postman_collection.json
+https://github.com/Kevinmajesta/depublic-backend/blob/main/DB%20%26%20JSON%20API/depublic_project_fix.postman_collection.json
 or
 https://documenter.getpostman.com/view/24409024/2sA3XJjjNi
 ```
