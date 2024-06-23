@@ -24,11 +24,11 @@ type SMTPConfig struct {
 }
 
 type PostgresConfig struct {
-	Host     string `env:"HOST" envDefault:"localhost"`
-	Port     string `env:"PORT" envDefault:"5432"`
-	User     string `env:"USER" envDefault:"postgres"`
-	Password string `env:"PASSWORD" envDefault:"postgres"`
-	Database string `env:"DATABASE" envDefault:"postgres"`
+	Host     string `env:"HOST" `
+	Port     string `env:"PORT"`
+	User     string `env:"USER"`
+	Password string `env:"PASSWORD"`
+	Database string `env:"DATABASE"`
 }
 
 type JwtConfig struct {
