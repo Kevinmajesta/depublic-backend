@@ -42,16 +42,16 @@ JWT_SECRET_KEY="erwhdhsajdahjkdhqwiuou"
 
 3. Enable the PostgreSQL database
    Option you can use :
-   [pgAdmin](https://www.pgadmin.org/)
-   [NaviCat](https://www.navicat.com/en/download/navicat-premium?gad_source=1&gclid=CjwKCAjwmYCzBhA6EiwAxFwfgFWv6YNc_nwrdL5BByjvaEmUNbzD0vvg-tHgv7x6rFyIx-zSdWYQWhoCRP0QAvD_BwE)
+   - [pgAdmin](https://www.pgadmin.org/)
+   - [NaviCat](https://www.navicat.com/en/download/navicat-premium?gad_source=1&gclid=CjwKCAjwmYCzBhA6EiwAxFwfgFWv6YNc_nwrdL5BByjvaEmUNbzD0vvg-tHgv7x6rFyIx-zSdWYQWhoCRP0QAvD_BwE)
    Or anything else you usualy use
 
-4. Run the command to create the database and migrate it.
+5. Run the command to create the database and migrate it.
    Make sure you have install migrate cli.
    If you dont, install first by
 
 **If you MAC user** 🍏
-First if you dont have [Home Brew](https://brew.sh/)
+- First if you dont have [Home Brew](https://brew.sh/)
 Open terminal and copy code below :
 
 ```sh
@@ -65,8 +65,8 @@ brew install golang-migrate
 ```
 
 **If you windows user**🪟
-1.Open PowerShell. You can do this by searching for PowerShell in the start menu.
-2.Inside PowerShell, type the code below
+- Open PowerShell. You can do this by searching for PowerShell in the start menu.
+- Inside PowerShell, type the code below
 
 ```sh
 iwr -useb get.scoop.sh | iex
@@ -86,9 +86,9 @@ migrate -database "postgres://depublic:depublic@localhost:5432/depublic?sslmode=
 
 5. Configure Docker
    **First Install Docker**
-   Windows User[Docker](https://docs.docker.com/desktop/install/windows-install/)
-   Mac User [Docker](https://docs.docker.com/desktop/install/mac-install/)
-   Then compose it by
+   - Windows User[Docker](https://docs.docker.com/desktop/install/windows-install/)
+   - Mac User [Docker](https://docs.docker.com/desktop/install/mac-install/)
+   - Then compose it by
 
 ```sh
 docker-compose up -d
@@ -161,6 +161,8 @@ Documentation for API can be get by :
 output\depublic-backend/depublic_project.postman_collection.json
 or
 https://github.com/Kevinmajesta/depublic-backend/blob/dev/depublic_project.postman_collection.json
+or
+https://documenter.getpostman.com/view/24409024/2sA3XJjjNi
 ```
 
 ## Detail Image ⚒️
