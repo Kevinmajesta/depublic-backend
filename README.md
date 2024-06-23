@@ -16,14 +16,14 @@ Depublic build by [Go](https://go.dev/dl/) Go 1.13+ to run.
 
 ```sh
 By use terminal/cmd
-`git clone https://github.com/Kevinmajesta/depublic-backend.git`
+git clone https://github.com/Kevinmajesta/depublic-backend.git
 ```
 
 2. Open Repository
 
 ```sh
 By use terminal/cmd
-`cd depublic-backend`
+cd depublic-backend
 ```
 
 2. Check the .env file and configure with your device
