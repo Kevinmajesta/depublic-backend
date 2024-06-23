@@ -57,7 +57,7 @@ func (e *EmailSender) SendVerificationEmail(to, name, code string) error {
 func (e *EmailSender) SendTransactionInfo(to, Transactions_id, Cart_id, User_id,
 	Fullname_user, Trx_date, Payment, Payment_url, Amount string) error {
 	subject := "Transaction Info | Depublic"
-	body := fmt.Sprintf("Dear %s,\nThis is your transaction info from Depublic:\n\nTransaction ID: %s\n\nCart ID: %s\n\nUser ID: %s\n\nFullname: %s\n\nTransaction Date: %s\n\nPayment Type: %s\n\nURL Payment: %s\n\nURL Amount: %s\n\n\nDepublic Team ",
-	Fullname_user, Transactions_id, Cart_id, User_id, Fullname_user, Trx_date, Payment, Payment_url, Amount)
+	body := fmt.Sprintf("Dear %s,\nThis is your transaction info from Depublic:\n\nTransaction ID: %s\n\nCart ID: %s\n\nUser ID: %s\n\nFullname: %s\n\nTransaction Date: %s\n\nPayment Type: %s\n\nURL Payment: %s\n\nTotal Amount: %s\n\n\nDepublic Team ",
+		Fullname_user, Transactions_id, Cart_id, User_id, Fullname_user, Trx_date, Payment, Payment_url, Amount)
 	return e.SendEmail([]string{to}, subject, body)
 }
