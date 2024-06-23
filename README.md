@@ -13,13 +13,15 @@ This platform is a marketplace for buying and selling concert and event tickets,
 Depublic build by [Go](https://go.dev/dl/) Go 1.13+ to run.
 
 1. Clone Repository
-By use terminal/cmd
+   By use terminal/cmd
+
 ```sh
 git clone https://github.com/Kevinmajesta/depublic-backend.git
 ```
 
 2. Open Repository
-By use terminal/cmd
+   By use terminal/cmd
+
 ```sh
 cd depublic-backend
 ```
@@ -42,17 +44,19 @@ JWT_SECRET_KEY="erwhdhsajdahjkdhqwiuou"
 
 3. Enable the PostgreSQL database
    Option you can use :
+
    - [pgAdmin](https://www.pgadmin.org/)
    - [NaviCat](https://www.navicat.com/en/download/navicat-premium?gad_source=1&gclid=CjwKCAjwmYCzBhA6EiwAxFwfgFWv6YNc_nwrdL5BByjvaEmUNbzD0vvg-tHgv7x6rFyIx-zSdWYQWhoCRP0QAvD_BwE)
    - Or anything else you usualy use
 
-5. Run the command to create the database and migrate it.
+4. Run the command to create the database and migrate it.
    Make sure you have install migrate cli.
    If you dont, install first by
 
 **If you MAC user** 🍏
+
 - First if you dont have [Home Brew](https://brew.sh/)
-Open terminal and copy code below :
+  Open terminal and copy code below :
 
 ```sh
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -65,6 +69,7 @@ brew install golang-migrate
 ```
 
 **If you windows user**🪟
+
 - Open PowerShell. You can do this by searching for PowerShell in the start menu.
 - Inside PowerShell, type the code below
 
@@ -100,6 +105,7 @@ docker-compose up -d
 go mod tidy
 go run cmd/app/main.go
 ```
+
 ---
 
 ## Detail Project 📝
@@ -169,5 +175,6 @@ https://documenter.getpostman.com/view/24409024/2sA3XJjjNi
 ## Detail Image ⚒️
 
 Detail for Flow Application
-![Flow1](https://github.com/Kevinmajesta/depublic-backend/blob/main/assets/flow1.png)
-![Flow2](https://github.com/Kevinmajesta/depublic-backend/blob/main/assets/flow2.png)
+![Flow](https://github.com/Kevinmajesta/depublic-backend/blob/main/assets/fullfluw.png)
+
+<!-- ![Flow2](https://github.com/Kevinmajesta/depublic-backend/blob/main/assets/flow2.png) -->
