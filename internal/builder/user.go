@@ -48,7 +48,7 @@ func BuildPublicRoutes(db *gorm.DB, redisDB *redis.Client, tokenUseCase token.To
 	return router.PublicRoutes(userHandler, adminHandler, notificationHandler, eventHandler, categoryHandler)
 }
 
-func BuildPrivateRoutes(db *gorm.DB, redisDB *redis.Client, encryptTool encrypt.EncryptTool, entityCfg *entity.Config) []*route.Route {
+func BuildPrivateRoutes(db *gorm.DB, redisDB *redis.Client, encryptTool encrypt.EncryptTool, entityCfg *entity.Config, tokenUseCase token.TokenUseCase) []*route.Route {
 	cacheable := cache.NewCacheable(redisDB)
 	emailService := email.NewEmailSender(entityCfg)
 	userRepository := repository.NewUserRepository(db, cacheable)
@@ -78,7 +78,7 @@ func BuildPrivateRoutes(db *gorm.DB, redisDB *redis.Client, encryptTool encrypt.
 
 	transactionRepository := repository.NewTransactionRepository(db, cacheable)
 	transactionService := service.NewTransactionService(transactionRepository, emailService, userRepository)
-	transactionHandler := handler.NewTransactionHandler(transactionService)
+	transactionHandler := handler.NewTransactionHandler(transactionService, tokenUseCase)
 
 	categoryRepository := repository.NewCategoryRepository(db, cacheable)
 	categoryService := service.NewCategoryService(categoryRepository)

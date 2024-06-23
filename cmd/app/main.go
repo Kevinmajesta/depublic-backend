@@ -34,7 +34,7 @@ func main() {
 
 	// Build public and private routes
 	publicRoutes := builder.BuildPublicRoutes(db, redisDB, tokenUseCase, encryptTool, entityCfg)
-	privateRoutes := builder.BuildPrivateRoutes(db, redisDB, encryptTool, entityCfg)
+	privateRoutes := builder.BuildPrivateRoutes(db, redisDB, encryptTool, entityCfg, tokenUseCase)
 
 	// Initialize and run the server
 	srv := server.NewServer("app", publicRoutes, privateRoutes, cfg.JWT.SecretKey)
