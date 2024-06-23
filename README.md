@@ -44,7 +44,7 @@ JWT_SECRET_KEY="erwhdhsajdahjkdhqwiuou"
    Option you can use :
    - [pgAdmin](https://www.pgadmin.org/)
    - [NaviCat](https://www.navicat.com/en/download/navicat-premium?gad_source=1&gclid=CjwKCAjwmYCzBhA6EiwAxFwfgFWv6YNc_nwrdL5BByjvaEmUNbzD0vvg-tHgv7x6rFyIx-zSdWYQWhoCRP0QAvD_BwE)
-   Or anything else you usualy use
+   - Or anything else you usualy use
 
 5. Run the command to create the database and migrate it.
    Make sure you have install migrate cli.
@@ -100,6 +100,7 @@ docker-compose up -d
 go mod tidy
 go run cmd/app/main.go
 ```
+---
 
 ## Detail Project 📝
 
