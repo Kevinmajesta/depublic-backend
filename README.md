@@ -168,5 +168,5 @@ https://github.com/Kevinmajesta/depublic-backend/blob/dev/depublic_project.postm
 ## Detail Image ⚒️
 
 Detail for Flow Application
-![Flow1](https://github.com/Kevinmajesta/depublic-backend/assets/flow1.png)
-![Flow2](https://github.com/Kevinmajesta/depublic-backend/assets/flow2.png)
+![Flow1](https://github.com/Kevinmajesta/depublic-backend/blob/main/assets/flow1.png)
+![Flow2](https://github.com/Kevinmajesta/depublic-backend/blob/main/assets/flow2.png)
