@@ -243,6 +243,65 @@ func (r *eventRepository) FilterEvents(
 // 	return events, nil
 // }
 
+// func (r *eventRepository) SortEvents(sortBy string) ([]entity.Events, error) {
+// 	wib, err := time.LoadLocation("Asia/Jakarta")
+// 	if err != nil {
+// 		panic(err)
+// 	}
+
+// 	var events []entity.Events
+// 	query := r.db
+
+// 	// Apply sorting based on the sortBy parameter
+// 	switch sortBy {
+// 	case "terbaru":
+// 		query = query.Order("created_at DESC")
+// 	case "termahal":
+// 		query = query.Order("price_event DESC")
+// 	case "termurah":
+// 		query = query.Order("price_event ASC")
+// 	case "terdekat":
+
+// 		query = query.Order("date_event ASC").Where("date_event >= ?", time.Now().In(wib).Format("2006-01-02"))
+
+// 	default:
+// 		// Default sorting if sort_by is not recognized
+// 		query = query.Order("date_event DESC")
+// 	}
+
+// 	if err := query.Find(&events).Error; err != nil {
+// 		return nil, err
+// 	}
+
+// 	if sortBy == "terpopuler" {
+// 		transactions := []int{4, 2, 7, 1, 9, 3, 7, 4, 2, 7, 1, 4, 4}
+// 		var events *transactions
+
+// 		// Inisialisasi peta untuk melacak frekuensi setiap elemen
+// 		freqMap := make(map[int]int)
+
+// 		// Iterasi melalui slice dan hitung frekuensi setiap elemen
+// 		for _, trx := range transactions {
+// 			freqMap[trx]++
+// 		}
+
+// 		// Inisialisasi variabel untuk menyimpan elemen terpopuler dan frekuensinya
+// 		var mostPopular int
+// 		maxFreq := 0
+
+// 		// Iterasi melalui peta untuk menemukan elemen dengan frekuensi tertinggi
+// 		for trx, freq := range freqMap {
+// 			if freq > maxFreq {
+// 				mostPopular = trx
+// 				maxFreq = freq
+// 			}
+// 		}
+// 		events := mostPopular
+// 		return events, nil
+// 	}
+// 	return events, nil
+// }
+
 func (r *eventRepository) SortEvents(sortBy string) ([]entity.Events, error) {
 	wib, err := time.LoadLocation("Asia/Jakarta")
 	if err != nil {
@@ -261,21 +320,9 @@ func (r *eventRepository) SortEvents(sortBy string) ([]entity.Events, error) {
 	case "termurah":
 		query = query.Order("price_event ASC")
 	case "terdekat":
-
 		query = query.Order("date_event ASC").Where("date_event >= ?", time.Now().In(wib).Format("2006-01-02"))
-
-	default:
-		// Default sorting if sort_by is not recognized
-		query = query.Order("date_event DESC")
-	}
-
-	if err := query.Find(&events).Error; err != nil {
-		return nil, err
-	}
-
-	if sortBy == "terpopuler" {
+	case "terpopuler":
 		transactions := []int{4, 2, 7, 1, 9, 3, 7, 4, 2, 7, 1, 4, 4}
-		var events *transactions
 
 		// Inisialisasi peta untuk melacak frekuensi setiap elemen
 		freqMap := make(map[int]int)
@@ -296,8 +343,20 @@ func (r *eventRepository) SortEvents(sortBy string) ([]entity.Events, error) {
 				maxFreq = freq
 			}
 		}
-		events := mostPopular
+
+		// Mengambil event berdasarkan ID terpopuler
+		if err := query.Where("id = ?", mostPopular).Find(&events).Error; err != nil {
+			return nil, err
+		}
 		return events, nil
+	default:
+		// Default sorting if sort_by is not recognized
+		query = query.Order("date_event DESC")
 	}
+
+	if err := query.Find(&events).Error; err != nil {
+		return nil, err
+	}
+
 	return events, nil
 }
