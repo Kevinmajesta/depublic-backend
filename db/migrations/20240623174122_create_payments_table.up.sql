@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS payments (
     pay_time TIMESTAMPTZ NOT NULL DEFAULT now(),
     pay_settlement_time TIMESTAMPTZ NOT NULL DEFAULT now(),
     pay_type varchar(100) NOT NULL,
+    signature_key TEXT NOT NULL,
     Created_At TIMESTAMPTZ NOT NULL DEFAULT now(),
     Updated_At TIMESTAMPTZ NOT NULL DEFAULT now(),
     Deleted_At TIMESTAMPTZ
