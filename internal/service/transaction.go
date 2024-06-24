@@ -16,6 +16,7 @@ type TransactionService interface {
 	FindEventByID(Event_id uuid.UUID) (*entity.Events, error)
 	FindCartByID(cart_id uuid.UUID) (*entity.Carts, error)
 	FindUserByID(User_idd uuid.UUID) (*entity.Useraccount, error)
+	FindTicketByID(Transaction_id uuid.UUID) (*entity.Tickets, error)
 	FindTrxByID(Transaction_id uuid.UUID) (*entity.Transactions, error)
 	FindTrxrelationByID(Transaction_id uuid.UUID, User_id uuid.UUID) (*entity.Transactions, error)
 	FindTrxdetailByID(Transaction_id uuid.UUID) (*entity.Transaction_details, error)
@@ -72,6 +73,9 @@ func (s *transactionService) FindAllTransaction() ([]entity.Transactions, error)
 	return formattedTransacion, nil
 }
 
+func (s *transactionService) FindTicketByID(Transaction_id uuid.UUID) (*entity.Tickets, error) {
+	return s.transactionRepository.FindTicketByID(Transaction_id)
+}
 func (s *transactionService) FindEventByID(Event_id uuid.UUID) (*entity.Events, error) {
 	return s.transactionRepository.FindEventByID(Event_id)
 }
