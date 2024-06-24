@@ -21,6 +21,8 @@ type TransactionService interface {
 	FindTrxrelationByID(Transaction_id uuid.UUID, User_id uuid.UUID) (*entity.Transactions, error)
 	FindTrxdetailByID(Transaction_id uuid.UUID) (*entity.Transaction_details, error)
 	UpdateTransaction(transactionupdate *entity.Transactions) (*entity.Transactions, error)
+	UpdateTransactioncancel(transactionupdate *entity.Transactions) (*entity.Transactions, error)
+	UpdateTransactionexp(transactionupdate *entity.Transactions) (*entity.Transactions, error)
 }
 
 type transactionService struct {
@@ -106,7 +108,23 @@ func (s *transactionService) FindUserByID(User_id uuid.UUID) (*entity.Useraccoun
 func (s *transactionService) UpdateTransaction(transactionupdate *entity.Transactions) (*entity.Transactions, error) {
 	if transactionupdate.Status != "" {
 
-		transactionupdate.Status = "true"
+		transactionupdate.Status = "settlement"
+	}
+	return s.transactionRepository.UpdateTransaction(transactionupdate)
+}
+
+func (s *transactionService) UpdateTransactioncancel(transactionupdate *entity.Transactions) (*entity.Transactions, error) {
+	if transactionupdate.Status != "" {
+
+		transactionupdate.Status = "cancel"
+	}
+	return s.transactionRepository.UpdateTransaction(transactionupdate)
+}
+
+func (s *transactionService) UpdateTransactionexp(transactionupdate *entity.Transactions) (*entity.Transactions, error) {
+	if transactionupdate.Status != "" {
+
+		transactionupdate.Status = "expired"
 	}
 	return s.transactionRepository.UpdateTransaction(transactionupdate)
 }

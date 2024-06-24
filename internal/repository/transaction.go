@@ -24,6 +24,8 @@ type TransactionRepository interface {
 	FindUserByEmail(email string) (*entity.User, error)
 	FindUserByID(cart_id uuid.UUID) (*entity.Useraccount, error)
 	UpdateTransaction(transactionupdate *entity.Transactions) (*entity.Transactions, error)
+	UpdateTransactioncancel(transactionupdate *entity.Transactions) (*entity.Transactions, error)
+	UpdateTransactionexp(transactionupdate *entity.Transactions) (*entity.Transactions, error)
 	FindTicketByID(Transaction_id uuid.UUID) (*entity.Tickets, error)
 }
 
@@ -389,6 +391,39 @@ func (r *transactionRepository) FindUserByEmail(email string) (*entity.User, err
 }
 
 func (r *transactionRepository) UpdateTransaction(transactionupdate *entity.Transactions) (*entity.Transactions, error) {
+	// Use map to store fields to be updated.
+	fields := make(map[string]interface{})
+
+	// Update fields only if they are not empty.
+	if transactionupdate.Status != "" {
+		fields["status"] = transactionupdate.Status
+	}
+
+	// Update the database in one query.
+	if err := r.db.Model(transactionupdate).Where("transactions_id = ?", transactionupdate.Transactions_id).Updates(fields).Error; err != nil {
+		return transactionupdate, err
+	}
+
+	return transactionupdate, nil
+}
+
+func (r *transactionRepository) UpdateTransactioncancel(transactionupdate *entity.Transactions) (*entity.Transactions, error) {
+	// Use map to store fields to be updated.
+	fields := make(map[string]interface{})
+
+	// Update fields only if they are not empty.
+	if transactionupdate.Status != "" {
+		fields["status"] = transactionupdate.Status
+	}
+
+	// Update the database in one query.
+	if err := r.db.Model(transactionupdate).Where("transactions_id = ?", transactionupdate.Transactions_id).Updates(fields).Error; err != nil {
+		return transactionupdate, err
+	}
+
+	return transactionupdate, nil
+}
+func (r *transactionRepository) UpdateTransactionexp(transactionupdate *entity.Transactions) (*entity.Transactions, error) {
 	// Use map to store fields to be updated.
 	fields := make(map[string]interface{})
 

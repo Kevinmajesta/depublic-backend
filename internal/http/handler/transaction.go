@@ -155,7 +155,7 @@ func (h *TransactionHandler) CreateTransaction(c echo.Context) error {
 				amountfinal := strconv.Itoa(amounttotal)
 
 				trx_id := uuid.New().String()
-				status := "0"
+				status := "pending"
 
 				url := "https://app.sandbox.midtrans.com/snap/v1/transactions"
 				// "enabled_payments": ["bca_va"],
@@ -220,16 +220,6 @@ func (h *TransactionHandler) CreateTransaction(c echo.Context) error {
 				}
 
 				NewTrx := entity.NewTransaction(trx_id, input.Cart_id, input.User_id, userdata.Fullname, input.Payment, paymenturl, amountfinal, status)
-
-				if NewTrx.Status == "1" {
-					return c.JSON(http.StatusFound, response.ErrorResponse(http.StatusFound, "The Payment Status value cannot be (True or 1). required value (False or 0)"))
-				}
-
-				if NewTrx.Status == "true" {
-					return c.JSON(http.StatusFound, response.ErrorResponse(http.StatusFound, "The Payment Status value cannot be (True or 1). required value (False or 0)"))
-				} else if NewTrx.Status == "True" {
-					return c.JSON(http.StatusFound, response.ErrorResponse(http.StatusFound, "The Payment Status value cannot be (True or 1). required value (False or 0)"))
-				}
 
 				if NewTrx.Cart_id == "" {
 					return c.JSON(http.StatusUnprocessableEntity, response.Errorfieldempty(http.StatusUnprocessableEntity, "Card_id"))
@@ -384,12 +374,26 @@ func (h *TransactionHandler) CheckPayTransaction(c echo.Context) error {
 
 				return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Success Check Pay", payreload))
 			} else if trxpay == "expire" {
-				return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sorry! payment expired"))
+				statustrxcancel := "expired"
+
+				updatetrxcancel := entity.UpdateTransaction(input.Transactions_id, statustrxcancel)
+				updatedTrxcancel, err := h.transactionService.UpdateTransactionexp(updatetrxcancel)
+				if err != nil {
+					return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
+				}
+				return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Sorry! payment expired", updatedTrxcancel.Transactions_id))
 			} else if trxpay == "cancel" {
-				return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sorry! payment cancel"))
+				statustrxcancel := "cancel"
+
+				updatetrxcancel := entity.UpdateTransaction(input.Transactions_id, statustrxcancel)
+				updatedTrxcancel, err := h.transactionService.UpdateTransactioncancel(updatetrxcancel)
+				if err != nil {
+					return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
+				}
+				return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Success cancel", updatedTrxcancel.Transactions_id))
 			} else if trxpay == "settlement" {
 
-				statustrx := "true"
+				statustrx := "settlement"
 
 				updatetrx := entity.UpdateTransaction(input.Transactions_id, statustrx)
 
