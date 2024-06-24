@@ -178,7 +178,7 @@ Detail for Flow Application
 ![Flow1](https://github.com/Kevinmajesta/depublic-backend/blob/main/assets/flow1.png)
 ![Flow2](https://github.com/Kevinmajesta/depublic-backend/blob/main/assets/flow2.png)
 ![Flow](https://github.com/Kevinmajesta/depublic-backend/blob/main/assets/fullflow.png)
-**Detail fo Table Relation**
+**Detail for Table Relation**
 ![Flow](https://github.com/Kevinmajesta/depublic-backend/blob/main/assets/Diagram.png)
 
 ---
