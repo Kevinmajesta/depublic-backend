@@ -307,7 +307,7 @@ func (h *EventHandler) SortEvents(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Wrong sort command"))
 	}
 	// Check if input sort not spesificable
-	if sortBy != "terbaru" && sortBy != "termahal" && sortBy != "termurah" && sortBy != "terdekat" {
+	if sortBy != "terbaru" && sortBy != "termahal" && sortBy != "termurah" && sortBy != "terdekat" && sortBy != "terpopuler" {
 		return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Wrong sort command"))
 	}
 	events, err := h.eventService.SortEvents(sortBy)
