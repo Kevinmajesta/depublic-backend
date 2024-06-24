@@ -3,11 +3,12 @@ package service
 import (
 	"github.com/Kevinmajesta/depublic-backend/internal/entity"
 	"github.com/Kevinmajesta/depublic-backend/internal/repository"
+	"github.com/google/uuid"
 )
 
 type PaymentService interface {
 	CreatePayment(payment *entity.Payments) (*entity.Payments, error)
-	CreatePaymentdata(pay_id, trx_id, status, trx_time, trx_sett_time, pay_type, signature_key string) (*entity.Payments, error)
+	FindPayByID(payment_id uuid.UUID) (*entity.Payments, error)
 }
 
 type paymentService struct {
@@ -21,14 +22,6 @@ func NewPaymentService(paymentRepo repository.PaymentRepository) PaymentService 
 func (s *paymentService) CreatePayment(payment *entity.Payments) (*entity.Payments, error) {
 	return s.paymentRepository.CreatePayment(payment)
 }
-
-func (s *paymentService) CreatePaymentdata(pay_id, trx_id, status, trx_time, trx_sett_time, pay_type, signature_key string) (*entity.Payments, error) {
-	return s.paymentRepository.CreatePaymentdata(pay_id, trx_id, status, trx_time, trx_sett_time, pay_type, signature_key)
+func (s *paymentService) FindPayByID(payment_id uuid.UUID) (*entity.Payments, error) {
+	return s.paymentRepository.FindPayByID(payment_id)
 }
-
-// func (s *paymentService) CreatePaymentdata(payID string) error {
-
-// 	payment := Payment{PayID: payID}
-// 	result := s.DB.Create(&payment)
-// 	return result.Error
-// }

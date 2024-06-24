@@ -76,9 +76,12 @@ func BuildPrivateRoutes(db *gorm.DB, redisDB *redis.Client, encryptTool encrypt.
 	cartService := service.NewCartService(cartRepository, eventRepository, userRepository, notificationService)
 	cartHandler := handler.NewCartHandler(cartService)
 
+	paymentRepository := repository.NewPaymentRepository(db, cacheable)
+	paymentService := service.NewPaymentService(paymentRepository)
+
 	transactionRepository := repository.NewTransactionRepository(db, cacheable)
 	transactionService := service.NewTransactionService(transactionRepository, emailService, userRepository)
-	transactionHandler := handler.NewTransactionHandler(transactionService, tokenUseCase)
+	transactionHandler := handler.NewTransactionHandler(transactionService, tokenUseCase, paymentService)
 
 	categoryRepository := repository.NewCategoryRepository(db, cacheable)
 	categoryService := service.NewCategoryService(categoryRepository)

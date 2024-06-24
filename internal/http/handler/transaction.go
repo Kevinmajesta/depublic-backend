@@ -22,6 +22,7 @@ type TransactionHandler struct {
 	transactionService service.TransactionService
 	paymentService     service.PaymentService
 	tokenUseCase       token.TokenUseCase
+	// paymentService     service.PaymentService
 }
 
 type CustomValidator struct {
@@ -73,8 +74,8 @@ func (h *TransactionHandler) claimsjwtdata(c echo.Context) error {
 	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Success Create Data New Transaction", claimsjwt))
 }
 
-func NewTransactionHandler(transactionService service.TransactionService, tokenUseCase token.TokenUseCase) TransactionHandler {
-	return TransactionHandler{transactionService: transactionService, tokenUseCase: tokenUseCase}
+func NewTransactionHandler(transactionService service.TransactionService, tokenUseCase token.TokenUseCase, paymentService service.PaymentService) TransactionHandler {
+	return TransactionHandler{transactionService: transactionService, tokenUseCase: tokenUseCase, paymentService: paymentService}
 
 }
 
@@ -417,62 +418,73 @@ func (h *TransactionHandler) CheckPayTransaction(c echo.Context) error {
 				if eventdata.Event_id.String() == "" {
 					return c.JSON(http.StatusFound, response.ErrorResponse(http.StatusFound, "Sorry! We found Event no data"))
 				}
+				trxidfind := uuid.MustParse(transaction.Transactions_id)
+				trxdatafind, err := h.transactionService.FindTicketByID(trxidfind)
 
-				ticket_id := uuid.New().String()
-				codeqr := uuid.New().String()
-				NewTicketdata := entity.NewTicket(ticket_id, transaction.Transactions_id, eventdata.Event_id.String(), codeqr, eventdata.Title_event, transactiondetail.Qty_event)
-
-				ticketdata, err := h.transactionService.CreateTicket(NewTicketdata)
-				if err != nil {
-					return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
-				}
-				jsonData, err := json.Marshal(checkpayreq)
-				if err != nil {
-
-				}
-				// Create an instance of the struct to hold the unmarshaled data
-				var paymentdata *Paymentsdata
-
-				// Unmarshal the JSON string into the struct
-				err = json.Unmarshal([]byte(jsonData), &paymentdata)
-
-				NewPaymentdata := entity.NewPaymentdata(checkpayreq["transaction_id"].(string), paymentdata.Order_id, paymentdata.Transaction_status, paymentdata.Transaction_time, paymentdata.Settlement_time, paymentdata.Payment_type, paymentdata.Signature_key)
-
-				payment, err := h.paymentService.CreatePayment(NewPaymentdata)
 				if err != nil {
 					return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
 				}
 
-				// paymentService := h.paymentService.NewPaymentService(db)
-				// paymentdatatrx, err := h.paymentService.CreatePaymentdata()
-				// if err != nil {
-				// 	return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
-				// }
-				// if err != nil {
-				// 	fmt.Println("Error:", err)
-				// 	return
-				// }
-				paydat := make(map[string]interface{})
+				if trxdatafind.Transaction_id == "" {
+					ticket_id := uuid.New().String()
+					codeqr := uuid.New().String()
+					NewTicketdata := entity.NewTicket(ticket_id, transaction.Transactions_id, eventdata.Event_id.String(), codeqr, eventdata.Title_event, transactiondetail.Qty_event)
 
-				paydat["pay_id"] = checkpayreq["transaction_id"]
-				paydat["orderid"] = paymentdata.Order_id
-				paydat["Status_Transaksi"] = paymentdata.Transaction_status
-				paydat["Message"] = paymentdata.Transaction_time
-				paydat["Payment"] = paymentdata.Settlement_time
-				paydat["Payment_1"] = paymentdata.Payment_type
-				paydat["Payment_1"] = paymentdata.Signature_key
+					ticketdata, err := h.transactionService.CreateTicket(NewTicketdata)
+					if err != nil {
+						return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
+					}
 
-				fields := make(map[string]interface{})
+					jsonData, err := json.Marshal(checkpayreq)
+					if err != nil {
+						return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
+					}
+					var paymentdata Paymentsdata
+					err = json.Unmarshal([]byte(jsonData), &paymentdata)
+					if err != nil {
+						return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
+					}
+					paymentid := uuid.MustParse(checkpayreq["transaction_id"].(string))
+					paydatafind, err := h.paymentService.FindPayByID(paymentid)
 
-				fields["Ticket_id"] = ticketdata.Tickets_id
-				fields["Status_Payment"] = checkpayreq["transaction_status"]
-				fields["Status_Transaksi"] = updatedTrx.Status
-				fields["Message"] = "Payment Success"
-				fields["Payment"] = paydat
-				fields["Payment_1"] = checkpayreq
-				fields["Payment_2"] = payment
+					if err != nil {
+						return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
+					}
 
-				return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Success Check Pay", fields))
+					if paydatafind.Payment_id == "" {
+						NewPaymentdata := entity.NewPaymentdata(checkpayreq["transaction_id"].(string), paymentdata.Order_id, paymentdata.Transaction_status, paymentdata.Transaction_time, paymentdata.Settlement_time, paymentdata.Payment_type, paymentdata.Signature_key)
+
+						payment, err := h.paymentService.CreatePayment(NewPaymentdata)
+						if err != nil {
+							return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, err.Error()))
+						}
+						paydat := make(map[string]interface{})
+
+						paydat["payment_id"] = payment.Payment_id
+						paydat["transaksi_id"] = payment.Transaksi_id
+						paydat["Status_payment"] = payment.Status_pay
+						paydat["Transaksi_time"] = payment.Pay_time
+						paydat["Settlement_time"] = payment.Pay_settlement_time
+						paydat["Payment_type"] = payment.Pay_type
+						paydat["Signature_key"] = payment.Signature_key
+
+						checkpay := make(map[string]interface{})
+
+						checkpay["Ticket_id"] = ticketdata.Tickets_id
+						checkpay["Status_Payment"] = checkpayreq["transaction_status"]
+						checkpay["Status_Transaksi"] = updatedTrx.Status
+						checkpay["Message"] = "Payment Success"
+						checkpay["Payment"] = paydat
+
+						return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Success Check Pay", checkpay))
+					} else {
+						return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sorry! payment settlement"))
+					}
+
+				} else {
+					return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sorry! payment settlement"))
+				}
+
 			} else {
 				return c.JSON(http.StatusBadRequest, response.ErrorResponse(http.StatusBadRequest, "Sorry! System error"))
 			}

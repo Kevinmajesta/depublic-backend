@@ -1,14 +1,17 @@
 package repository
 
 import (
+	"encoding/json"
+
 	"github.com/Kevinmajesta/depublic-backend/internal/entity"
 	"github.com/Kevinmajesta/depublic-backend/pkg/cache"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type PaymentRepository interface {
 	CreatePayment(payment *entity.Payments) (*entity.Payments, error)
-	CreatePaymentdata(pay_id, trx_id, status, trx_time, trx_sett_time, pay_type, signature_key string) (*entity.Payments, error)
+	FindPayByID(payment_id uuid.UUID) (*entity.Payments, error)
 }
 
 type paymentRepository struct {
@@ -29,15 +32,32 @@ func (r *paymentRepository) CreatePayment(payment *entity.Payments) (*entity.Pay
 
 }
 
-func (r *paymentRepository) CreatePaymentdata(pay_id, trx_id, status, trx_time, trx_sett_time, pay_type, signature_key string) (*entity.Payments, error) {
-	if r.db == nil {
-		// return fmt.Errorf("database connection is nil")
-	}
+func (r *paymentRepository) FindPayByID(payment_id uuid.UUID) (*entity.Payments, error) {
+	var pay entity.Payments
 
-	payment := entity.Payments{Payment_id: pay_id, Transaksi_id: trx_id, Status_pay: status, Pay_time: trx_time, Pay_settlement_time: trx_sett_time, Pay_type: pay_type, Signature_key: signature_key}
-	if err := r.db.Create(&payment).Error; err != nil {
-		return &payment, err
-	}
+	paysdata := &pay
+	key := "FindPayByID"
 
-	return &payment, nil
+	data, _ := r.cacheable.Get(key)
+
+	if data == "" {
+
+		err := r.db.Raw("SELECT * FROM payments WHERE payment_id = ?", payment_id).Scan(&pay).Error
+		if err != nil {
+			if err == gorm.ErrRecordNotFound {
+				return nil, nil
+			}
+			return nil, err
+		}
+		return &pay, nil
+
+	} else {
+		// Data ditemukan di Redis, unmarshal data ke transaction
+		err := json.Unmarshal([]byte(data), &paysdata)
+		if err != nil {
+			return paysdata, err
+		}
+	}
+	return &pay, nil
+
 }

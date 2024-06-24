@@ -24,6 +24,7 @@ type TransactionRepository interface {
 	FindUserByEmail(email string) (*entity.User, error)
 	FindUserByID(cart_id uuid.UUID) (*entity.Useraccount, error)
 	UpdateTransaction(transactionupdate *entity.Transactions) (*entity.Transactions, error)
+	FindTicketByID(Transaction_id uuid.UUID) (*entity.Tickets, error)
 }
 
 type transactionRepository struct {
@@ -147,6 +148,36 @@ func (r *transactionRepository) FindTrxByID(Transaction_id uuid.UUID) (*entity.T
 		}
 	}
 	return &trx, nil
+
+}
+
+func (r *transactionRepository) FindTicketByID(Transaction_id uuid.UUID) (*entity.Tickets, error) {
+	var ticket entity.Tickets
+
+	ticketsdata := &ticket
+	key := "FindTicketByID"
+
+	data, _ := r.cacheable.Get(key)
+
+	if data == "" {
+
+		err := r.db.Raw("SELECT * FROM tickets WHERE transaction_id = ?", Transaction_id).Scan(&ticket).Error
+		if err != nil {
+			if err == gorm.ErrRecordNotFound {
+				return nil, nil
+			}
+			return nil, err
+		}
+		return &ticket, nil
+
+	} else {
+		// Data ditemukan di Redis, unmarshal data ke transaction
+		err := json.Unmarshal([]byte(data), &ticketsdata)
+		if err != nil {
+			return ticketsdata, err
+		}
+	}
+	return &ticket, nil
 
 }
 
