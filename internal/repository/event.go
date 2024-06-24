@@ -2,6 +2,8 @@ package repository
 
 import (
 	"errors"
+	"fmt"
+	"sort"
 	"time"
 
 	"github.com/Kevinmajesta/depublic-backend/internal/entity"
@@ -322,35 +324,96 @@ func (r *eventRepository) SortEvents(sortBy string) ([]entity.Events, error) {
 	case "terdekat":
 		query = query.Order("date_event ASC").Where("date_event >= ?", time.Now().In(wib).Format("2006-01-02"))
 	case "terpopuler":
-		transactions := []int{4, 2, 7, 1, 9, 3, 7, 4, 2, 7, 1, 4, 4}
-
-		// Inisialisasi peta untuk melacak frekuensi setiap elemen
-		freqMap := make(map[int]int)
-
-		// Iterasi melalui slice dan hitung frekuensi setiap elemen
-		for _, trx := range transactions {
-			freqMap[trx]++
+		wib, err := time.LoadLocation("Asia/Jakarta")
+		if err != nil {
+			panic(err)
 		}
 
-		// Inisialisasi variabel untuk menyimpan elemen terpopuler dan frekuensinya
-		var mostPopular int
-		maxFreq := 0
+		var events []entity.Events
+		query := r.db
 
-		// Iterasi melalui peta untuk menemukan elemen dengan frekuensi tertinggi
-		for trx, freq := range freqMap {
-			if freq > maxFreq {
-				mostPopular = trx
-				maxFreq = freq
+		// Apply sorting based on the sortBy parameter
+		switch sortBy {
+		case "terbaru":
+			query = query.Order("created_at DESC")
+		case "termahal":
+			query = query.Order("price_event DESC")
+		case "termurah":
+			query = query.Order("price_event ASC")
+		case "terdekat":
+			query = query.Order("date_event ASC").Where("date_event >= ?", time.Now().In(wib).Format("2006-01-02"))
+		case "terpopuler":
+			var tickets []entity.Tickets
+
+			if err := r.db.Find(&tickets).Error; err != nil {
+				return nil, err
 			}
+
+			// inisialisasi peta untuk melacak frekuensi setiap event_id (UUID)
+			freqMap := make(map[uuid.UUID]int)
+
+			// loop melalui transaksi dan hitung frekuensi setiap event_id
+			for _, ticket := range tickets {
+				eventID, err := uuid.Parse(ticket.Event_id)
+				if err != nil {
+					// cek erro uuid
+					return nil, err
+				}
+				freqMap[eventID]++
+			}
+
+			// bikin slice dari map untuk mengurutkan berdasarkan frekuensi
+			type eventFrequency struct {
+				EventID uuid.UUID
+				Freq    int
+			}
+			var eventFrequencies []eventFrequency
+			for eventID, freq := range freqMap {
+				eventFrequencies = append(eventFrequencies, eventFrequency{EventID: eventID, Freq: freq})
+			}
+
+			// urut event berdasarkan frekuensi secara menurun
+			sort.Slice(eventFrequencies, func(i, j int) bool {
+				return eventFrequencies[i].Freq > eventFrequencies[j].Freq
+			})
+
+			// bikin slice sortedEventIDs dari eventFrequencies yang telah diurutkan
+			var sortedEventIDs []uuid.UUID
+			for _, ef := range eventFrequencies {
+				sortedEventIDs = append(sortedEventIDs, ef.EventID)
+			}
+
+			// bikin SQL untuk pengurutan berdasarkan CASE
+			caseStatement := "CASE"
+			for i, id := range sortedEventIDs {
+				caseStatement += fmt.Sprintf(" WHEN event_id = '%s' THEN %d", id, i+1)
+			}
+			caseStatement += " END"
+
+			// mengambil event berdasarkan ID yang diurutkan
+			if len(sortedEventIDs) > 0 {
+				if err := r.db.Where("event_id IN ?", sortedEventIDs).Order(caseStatement).Find(&events).Error; err != nil {
+					return nil, err
+				}
+			} else {
+				// kalo sortedEventIDs kosong, berikan response kosong atau error sesuai kebutuhan
+				return []entity.Events{}, nil
+			}
+
+			return events, nil
+
+		default:
+			// default sorting if sort_by is not recognized
+			query = query.Order("date_event DESC")
 		}
 
-		// Mengambil event berdasarkan ID terpopuler
-		if err := query.Where("id = ?", mostPopular).Find(&events).Error; err != nil {
+		if err := query.Find(&events).Error; err != nil {
 			return nil, err
 		}
+
 		return events, nil
 	default:
-		// Default sorting if sort_by is not recognized
+		// default sorting if sort_by is not recognized
 		query = query.Order("date_event DESC")
 	}
 
