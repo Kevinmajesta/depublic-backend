@@ -272,5 +272,32 @@ func (r *eventRepository) SortEvents(sortBy string) ([]entity.Events, error) {
 	if err := query.Find(&events).Error; err != nil {
 		return nil, err
 	}
+
+	if sortBy == "terpopuler" {
+		transactions := []int{4, 2, 7, 1, 9, 3, 7, 4, 2, 7, 1, 4, 4}
+		var events *transactions
+
+		// Inisialisasi peta untuk melacak frekuensi setiap elemen
+		freqMap := make(map[int]int)
+
+		// Iterasi melalui slice dan hitung frekuensi setiap elemen
+		for _, trx := range transactions {
+			freqMap[trx]++
+		}
+
+		// Inisialisasi variabel untuk menyimpan elemen terpopuler dan frekuensinya
+		var mostPopular int
+		maxFreq := 0
+
+		// Iterasi melalui peta untuk menemukan elemen dengan frekuensi tertinggi
+		for trx, freq := range freqMap {
+			if freq > maxFreq {
+				mostPopular = trx
+				maxFreq = freq
+			}
+		}
+		events := mostPopular
+		return events, nil
+	}
 	return events, nil
 }
