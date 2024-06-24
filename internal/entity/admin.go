@@ -11,7 +11,7 @@ type Admin struct {
 	User_ID  uuid.UUID `json:"user_id"`
 	Fullname string    `json:"fullname"`
 	Email    string    `json:"email"`
-	Password string    `json:"password"`
+	Password string    `json:"-"`
 	Role     string    `json:"role"`
 	Phone    string    `json:"phone"`
 	Auditable
