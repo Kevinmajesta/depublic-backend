@@ -183,7 +183,7 @@ Detail for Flow Application
 
 ---
 
-## Lisensi MIT <img src="http://creativecommons.or.id/uploads/nc.large.png" alt="NonCommercial" width="20">
+## License MIT <img src="http://creativecommons.or.id/uploads/nc.large.png" alt="NonCommercial" width="20">
 
 **Copyright (c) 2024 Group 4 Golang with MIKTI MSIB Partner**
 
