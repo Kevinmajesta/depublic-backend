@@ -178,15 +178,26 @@ Detail for Flow Application
 ![Flow1](https://github.com/Kevinmajesta/depublic-backend/blob/main/assets/flow1.png)
 ![Flow2](https://github.com/Kevinmajesta/depublic-backend/blob/main/assets/flow2.png)
 ![Flow](https://github.com/Kevinmajesta/depublic-backend/blob/main/assets/fullflow.png)
+**Detail fo Table Relation**
+![Flow](https://github.com/Kevinmajesta/depublic-backend/blob/main/assets/Diagram.png)
 
 ---
 
 ## Lisensi MIT <img src="http://creativecommons.or.id/uploads/nc.large.png" alt="NonCommercial" width="20">
 
+**Copyright (c) 2024 Group 4 Golang with MIKTI MSIB Partner**
+
+**Prohibited to sell or distribute this software for commercial purposes without written permission from us.**
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to use, copy, modify, and distribute the Software, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+The software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and non-infringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the software or the use or other dealings in the software.
+
 **Hak Cipta (c) 2024 Kelompok 4 Golang with MIKTI Mitra MSIB**
 
 **Dilarang menjual atau mendistribusikan perangkat lunak** ini untuk tujuan komersial tanpa persetujuan tertulis dari kami.
-Dengan ini, izin diberikan, tanpa biaya, kepada siapa pun yang memperoleh salinan perangkat lunak ini dan dokumentasi 
+Dengan ini, izin diberikan, tanpa biaya, kepada siapa pun yang memperoleh salinan perangkat lunak ini dan dokumentasi
 terkait (disebut sebagai "Perangkat Lunak"),untuk menggunakan, menyalin, memodifikasi, dan mendistribusikan Perangkat Lunak,
 dengan syarat pemberitahuan hak cipta di atas dan pemberitahuan ini disertakan dalam semua salinan atau bagian penting dari Perangkat Lunak.
 
