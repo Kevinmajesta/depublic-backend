@@ -300,7 +300,7 @@ func (h *TransactionHandler) CheckPayTransaction(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, response.ErrorResponse(http.StatusBadRequest, "you must login first"))
 	}
 	claimsjwt := user.Claims.(*token.JwtCustomClaims)
-	if claimsjwt.Role == "admin" {
+	if claimsjwt.Role == "user" {
 
 		if isValidUUID(input.Transactions_id) {
 
