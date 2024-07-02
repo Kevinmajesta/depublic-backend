@@ -193,15 +193,3 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 The software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and non-infringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the software or the use or other dealings in the software.
-
-**Hak Cipta (c) 2024 Kelompok 4 Golang with MIKTI Mitra MSIB**
-
-**Dilarang menjual atau mendistribusikan perangkat lunak** ini untuk tujuan komersial tanpa persetujuan tertulis dari kami.
-Dengan ini, izin diberikan, tanpa biaya, kepada siapa pun yang memperoleh salinan perangkat lunak ini dan dokumentasi
-terkait (disebut sebagai "Perangkat Lunak"),untuk menggunakan, menyalin, memodifikasi, dan mendistribusikan Perangkat Lunak,
-dengan syarat pemberitahuan hak cipta di atas dan pemberitahuan ini disertakan dalam semua salinan atau bagian penting dari Perangkat Lunak.
-
-perangkat lunak ini disediakan "sebagaimana adanya", tanpa jaminan apapun, baik tersurat maupun tersirat, termasuk namun tidak terbatas
-pada jaminan diperdagangkan, kesesuaian untuk tujuan tertentu, dan non-pelanggaran. dalam keadaan apapun, penulis atau pemegang hak cipta
-tidak bertanggung jawab atas klaim, kerusakan, atau kewajiban lainnya, baik dalam tindakan kontrak, tort, atau lainnya, yang timbul dari,
-keluar dari, atau berhubungan dengan perangkat lunak atau penggunaan atau transaksi lain dalam perangkat lunak.
