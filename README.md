@@ -160,6 +160,25 @@ This project app develope by 5 people
 
 By using github for development for staging and production. Git workflow with two branch branches: "main" for production and "dev" for testing and build.
 
+## Host Access API - Public Access 🔗
+
+- URL Access :
+
+```sh
+ http://ticketing.smartlms.my.id:8080/
+```
+
+- Example URL Access API - Public :
+
+Access the url configuration
+```sh
+ {Host_public}:{Ports}/app/api/v1/{Access_features}
+```
+To
+```sh
+ http://ticketing.smartlms.my.id:8080/app/api/v1/login/admin
+```
+
 ## API Documentation 🔗
 
 Documentation for API can be get by :
